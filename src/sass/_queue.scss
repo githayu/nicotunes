@@ -1,0 +1,116 @@
+.queue {
+  z-index: 50;
+  overflow: auto;
+  background-color: #eee;
+  opacity: 0;
+  transition: all .25s;
+  transform: translateY(100%);
+
+  &.active {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .queue-header {
+    background-color: #111;
+    color: #fff;
+    padding: 10px 20px;
+
+    .queue-info {
+      position: relative;
+    }
+
+    .queue-action {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+
+      > button {
+        padding: 0 !important;
+
+        + button {
+          margin-left: 10px;
+        }
+      }
+
+      .queue-shuffle,
+      .queue-clear {
+        &:before {
+          font-family: icon;
+          color: #eee;
+        }
+      }
+
+      .queue-shuffle {
+        &:before { content: '\f3b3' }
+      }
+
+      .queue-clear {
+        &:before { content: '\f154' }
+      }
+    }
+  }
+
+  .queue-video-list {
+
+    &:not(.dragging) {
+      > li {
+        &:not(.active):hover {
+          background-color: #eee;
+        }
+      }
+    }
+
+    > li {
+      display: flex;
+      padding: 8px 20px;
+      background-color: #fff;
+      transition: background-color .1s;
+
+      > * + * {
+        padding-left: 10px;
+      }
+
+      &.active {
+        background-color: #222;
+        color: #eee;
+
+        .queue-video-thumbnail { background: none !important }
+
+        .play-effect {
+          > div { background-color: #555 }
+        }
+      }
+
+      &.dragging {
+        visibility: hidden;
+      }
+    }
+
+    .queue-video-thumbnail {
+      flex: 0 0 71px;
+      height: 40px;
+      background-size: cover;
+      background-position: 0;
+      overflow: hidden;
+      position: relative;
+
+      @include playEffect;
+
+      .play-effect {
+        box-shadow: none;
+        background: none;
+      }
+    }
+
+    .queue-video-title {
+      padding-left: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: normal;
+      flex: 1;
+    }
+  }
+}

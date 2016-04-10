@@ -1,0 +1,255 @@
+@import "./_sanitize";
+@import "./_define";
+
+@import "./_login";
+@import "./_mylist";
+@import "./_navigation";
+@import "./_player";
+@import "./_queue";
+@import "./_ranking";
+@import "./_search";
+@import "./_settings";
+
+@font-face {
+  font-family: 'icon';
+  src: url('../../res/fonts/material-icon.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  -webkit-user-select: none;
+  height: inherit;
+}
+
+#app {
+  height: inherit;
+}
+
+#nico-tunes {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+
+  &.loading {
+    .loading-progress {
+      display: block;
+    }
+  }
+}
+
+* {
+  @include scrollbar;
+}
+
+.queue,
+.loading-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.loading-progress {
+  background-color: #fff;
+  display: none;
+  z-index: 100;
+
+  > div {
+    position: absolute !important;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 !important;
+  }
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: #ECEFF1;
+
+  .header {
+    -webkit-app-region: drag;
+    position: relative;
+    z-index: 100;
+
+    > h1 {
+      margin: 0;
+      font-weight: 200;
+      font-size: 14px;
+      text-align: center;
+      padding: 12px 0;
+      border-bottom: 1px #ddd solid;
+      background-color: #fff;
+    }
+  }
+
+  > [class*=-container] {
+    position: relative;
+    flex: 1;
+  }
+}
+
+.list-thumbnail {
+  height: 60px;
+  display: flex;
+  flex: 0 0 60px;
+  flex-wrap: wrap;
+  border-radius: 4px;
+  overflow: hidden;
+
+  &:empty {
+    background-color: #222;
+  }
+
+  > div {
+    width: 30px;
+    height: 30px;
+    background-position: 0 -5px;
+    background-size: 54px;
+  }
+}
+
+.list-info {
+  flex: 1 1;
+  padding-left: 15px;
+  transition: color .1s;
+}
+
+.list-description {
+  font-size: .9rem;
+  background-color: rgba(0,0,0,.08);
+  padding: 5px 8px;
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.video-list {
+  > li {
+    padding: 15px;
+    display: flex;
+    background-color: #fff;
+    margin: 10px;
+    transition: background-color .2s;
+    border-radius: 2px;
+
+    > div {
+      display: flex;
+      width: 100%;
+    }
+
+    &:hover {
+      .video-info {
+        > h2 {
+          color: $mainColor;
+        }
+      }
+    }
+
+    &.active {
+      background-color: #222;
+      color: #eee;
+
+      .video-thumbnail {
+        &:before { display: none }
+        &:after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          filter: blur(3px);
+          background: inherit;
+        }
+      }
+
+      .video-meta {
+        color: #777;
+
+        > li:before {
+          color: #555;
+        }
+      }
+    }
+  }
+
+  .video-thumbnail {
+    flex: 0 0 130px;
+    height: 73px;
+    background-size: cover;
+    background-position: 0;
+    background-color: #222;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+    @include playEffect;
+
+    &:before {
+      content: attr(data-video-duration);
+      position: absolute;
+      bottom: 3px;
+      right: 3px;
+      background-color: rgba(0,0,0,.7);
+      color: #fff;
+      font-size: .8rem;
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    &.small {
+      background-size: contain;
+      background-position: center;
+    }
+  }
+
+  .video-info {
+    padding: 5px 5px 0 20px;
+    flex: 1;
+    position: relative;
+    width: 0;
+
+    > h2 {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      transition: color .1s;
+    }
+  }
+
+  .video-meta {
+    list-style: none;
+    display: flex;
+    font-size: .85rem;
+    position: absolute;
+    bottom: 0;
+    color: #555;
+
+    > li {
+      &:before {
+        font-family: icon;
+        margin-right: 5px;
+        color: #ccc;
+      }
+
+      + li {
+        margin-left: 10px;
+      }
+    }
+
+    > .view:before { content: '\f3a9' }
+    > .comment:before { content: '\f25c' }
+    > .mylist:before { content: '\f228' }
+  }
+}

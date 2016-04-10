@@ -1,0 +1,84 @@
+.app-control {
+  display: flex;
+  padding: 15px 0;
+  list-style: none;
+  justify-content: center;
+  margin: 0 auto;
+
+  &:hover > li {
+    &.close:before { content: '\f136' }
+    &.minimize:before { content: '\f273' }
+    &.maximize:before { content: '\f278' }
+  }
+
+  > li {
+    + li {
+      margin-left: 6px;
+    }
+
+    &:before {
+      width: 12px;
+      height: 12px;
+      display: block;
+      border-radius: 6px;
+      content: '';
+      font-family: icon;
+      font-size: 10px;
+      line-height: 12px;
+      text-align: center;
+      color: rgba(0,0,0,.6);
+    }
+
+    &.close:before { background-color: #e53935; }
+    &.minimize:before { background-color: #FFB300; }
+    &.maximize:before { background-color: #7CB342; }
+  }
+}
+
+.navigation {
+  background-color: $mainColor;
+  flex: 0 0 80px;
+
+  .avatar-image {
+    width: 60px;
+    height: 60px;
+    margin: 20px auto 10px;
+    display: block;
+    border-radius: 4px;
+  }
+
+  .navigation-list {
+    padding: 15px 0;
+    margin: 0;
+    list-style: none;
+
+    > button {
+      margin: 0 auto;
+      padding: 0 !important;
+      display: block !important;
+
+      + button {
+        margin-top: 5px;
+      }
+
+      [class*=-link] {
+        &:before {
+          font-family: icon;
+          font-size: 25px;
+          display: block;
+          margin: 0 auto;
+          text-align: center;
+          color: #165892;
+        }
+
+        &.selected:before { color: $accentColor }
+      }
+
+      .mylists-link:before { content: '\f151' }
+      .playlist-link:before { content: '\f3ab' }
+      .ranking-link:before { content: '\f310' }
+      .settings-link:before { content: '\f1c6' }
+      .search-link:before { content: '\f1c3' }
+    }
+  }
+}

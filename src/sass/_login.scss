@@ -1,0 +1,41 @@
+@import "./_define";
+
+.login-container {
+  overflow-y: auto;
+  background-color: #fff;
+
+  .login-form-message {
+    background-color: #eee;
+    padding: 10px 30px;
+  }
+
+  .login-form-inner {
+    padding: 30px;
+  }
+
+  fieldset {
+    margin-bottom: 10px;
+
+    > legend {
+      margin-bottom: 6px;
+
+      &:before {
+        font-family: icon;
+        margin-right: 6px;
+      }
+    }
+
+    &.login-form-email > legend:before { content: '\f15a' }
+    &.login-form-password > legend:before { content: '\f183' }
+  }
+
+  input[type=email],
+  input[type=password] {
+    border: 1px #ddd solid;
+    padding: 5px 10px;
+    border-radius: 2px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

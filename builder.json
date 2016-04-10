@@ -1,0 +1,25 @@
+{
+  "osx": {
+    "title": "NicoTunes",
+    "background": "res/img/logo.icns",
+    "icon": "res/img/logo.icns",
+    "icon-size": 80,
+    "contents": [
+      {
+        "x": 438,
+        "y": 344,
+        "type": "link",
+        "path": "/Applications"
+      }, {
+        "x": 438,
+        "y": 344,
+        "type": "file"
+      }
+    ]
+  },
+
+  "win": {
+    "title": "NicoTunes",
+    "icon": "res/img/logo.ico"
+  }
+}

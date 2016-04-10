@@ -1,0 +1,54 @@
+.ranking-container {
+  display: flex;
+  flex-direction: column;
+
+  &.loading {
+    .loading-progress {
+      display: block;
+      background-color: transparent;
+    }
+  }
+
+  &.nicobox {
+    .ranking-header {
+      border-bottom: 1px rgba(0,0,0,.15) solid;
+    }
+  }
+
+  .ranking-header {
+    background-color: #fff;
+    overflow: hidden;
+    flex: 0 0;
+
+    .ranking-category {
+      padding: 5px 10px;
+      border: none;
+      margin: 10px auto;
+      display: block;
+      background-color: #eee;
+    }
+  }
+
+  .ranking-content {
+    overflow-y: auto;
+    flex: 1 1 0;
+
+    .video-list  {
+      .video-thumbnail {
+        .rank-count {
+          background-color: rgba(0,0,0,.5);
+          position: absolute;
+          color: #fff;
+          top: 3px;
+          left: 3px;
+          font-weight: bold;
+          border-radius: 2px;
+          padding: 0 10px;
+          line-height: 20px;
+          font-size: .8rem;
+          text-align: center;
+        }
+      }
+    }
+  }
+}

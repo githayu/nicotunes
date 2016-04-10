@@ -1,0 +1,96 @@
+.mylist-list-container {
+  overflow-y: auto;
+
+  .mylist-list {
+    > li {
+      display: flex;
+      padding: 15px;
+      margin: 10px;
+      background-color: #fff;
+      border-radius: 2px;
+
+      &:hover {
+        .list-info {
+          > h2 {
+            color: $mainColor;
+          }
+        }
+      }
+    }
+  }
+}
+
+.mylist-container {
+  overflow-y: auto;
+}
+
+.mylist-introduction {
+  height: 300px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  background-color: #333;
+  position: fixed;
+  top: 0;
+  left: 80px;
+  right: 10px;
+
+  > div {
+    width: 178px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-position: 0;
+    background-size: cover;
+  }
+}
+
+.mylist-content {
+  position: relative;
+  margin-top: 300px;
+  background-color: #ECEFF1;
+
+  .mylist-action {
+    padding: 10px 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.2);
+    background-color: #fff;
+    position: relative;
+  }
+}
+
+.mylist-header {
+  position: absolute;;
+  padding: 20px;
+  bottom: 100%;
+  width: 100%;
+  height: 300px;
+  box-sizing: border-box;
+  color: #fff;
+  background-image: linear-gradient(to top, rgba(0,0,0,.8), transparent 200px);
+
+
+  .mylist-info {
+    position: absolute;
+    bottom: 20px;
+
+    > h2 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .mylist-play-button {
+    position: absolute;
+    bottom: -30px;
+    right: 30px;
+    z-index: 10;
+
+    .icon {
+      text-indent: 5px;
+
+      &:before {
+        font-family: icon;
+        content: '\f3aa';
+        font-size: 3rem;
+      }
+    }
+  }
+}
