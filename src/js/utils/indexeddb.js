@@ -28,7 +28,7 @@ export default class IDBController {
       this.dbReq.onupgradeneeded = e => {
         let db = e.target.result;
 
-        for (store of this.store) {
+        for (let store of this.store) {
 
           // 既に ObjectStore が存在していれば削除
           if (db.objectStoreNames.contains(store.name)) {
