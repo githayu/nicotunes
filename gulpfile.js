@@ -1,18 +1,12 @@
 var gulp = require('gulp'),
-    uglify = require('gulp-uglify'),
     compass = require('gulp-compass'),
     plumber = require('gulp-plumber'),
     rename = require('gulp-rename'),
     watch = require('gulp-watch'),
     please = require('gulp-pleeease'),
     changed = require('gulp-changed'),
-    imagemin = require('gulp-imagemin'),
     babel = require('gulp-babel'),
-    babelify = require('babelify'),
-    browserify = require('browserify'),
-    htmlmin = require('gulp-htmlmin'),
-    pngquant = require('imagemin-pngquant'),
-    through2 = require('through2');
+    htmlmin = require('gulp-htmlmin');
 
 
 // html
@@ -36,13 +30,8 @@ gulp.task('js', function() {
     .pipe(babel({
       presets: ['es2017', 'stage-1', 'stage-0', 'react'],
       plugins: ['transform-decorators-legacy'],
-      compact: false
+      compact: true
     }))
-    // .pipe(uglify({
-    //   output: {
-    //     ascii_only: true
-    //   }
-    // }))
     .pipe(gulp.dest('./app'));
 });
 
@@ -73,21 +62,6 @@ gulp.task('compass', function() {
 });
 
 
-// image
-gulp.task('image', function() {
-  gulp.src('./src/img/**/*', {
-    base: 'src'
-  })
-    .pipe(imagemin({
-      use: [pngquant({
-        quality: '65-80',
-        spped: 1
-      })]
-    }))
-    .pipe(gulp.dest('./app'));
-});
-
-
 // 監視
 gulp.task('watch', function() {
   watch('./src/html/**/*.html', function() {
@@ -98,20 +72,12 @@ gulp.task('watch', function() {
     gulp.start('js');
   });
 
-  watch('./src/react/**/*.js', function() {
-    gulp.start('browserify');
-  });
-
   watch('./src/sass/**/*.scss', function() {
     gulp.start('compass');
   });
 
   watch('./src/css/**/*.css', function() {
     gulp.start('css');
-  });
-
-  watch('./src/img/**/*', function() {
-    gulp.start('image');
   });
 });
 
