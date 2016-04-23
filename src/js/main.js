@@ -3,8 +3,6 @@ import Menu from 'menu'
 import electron, { dialog } from 'electron'
 import BrowserWindow from 'browser-window'
 
-console.log();
-
 var mainWindow = null;
 
 require('crash-reporter').start();
@@ -14,18 +12,18 @@ let menu = Menu.buildFromTemplate([
     label: App.getName(),
     submenu: [
       {
-        label: `${App.getName()} について`,
+        label: 'NicoTunes について',
         click: showAboutDialog.bind()
       },
       { type: 'separator' },
-      {
-        label: '環境設定',
-        accelerator: 'CmdOrCtrl+,',
-        click: showSettingsPage.bind()
-      },
+      // {
+      //   label: '環境設定',
+      //   accelerator: 'CmdOrCtrl+,',
+      //   click: showSettingsPage.bind()
+      // },
       { type: 'separator' },
       {
-        label: `${App.getName()} を終了`,
+        label: 'NicoTunes を終了',
         accelerator: 'CmdOrCtrl+Q',
         click: App.quit.bind()
       }
@@ -48,7 +46,7 @@ function showAboutDialog() {
   dialog.showMessageBox({
     type: 'info',
     buttons: [],
-    title: `${App.getName()}について`,
+    title: 'NicoTunes について',
     message: App.getName(),
     detail: `バージョン ${App.getVersion()}\r\n© ${new Date().getFullYear()} Nanoway All rights reserved`
   });

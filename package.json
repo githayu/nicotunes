@@ -1,16 +1,14 @@
 {
   "name": "NicoTunes",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Niconico Music Player",
   "main": "app/js/main.js",
   "scripts": {
-    "start": "electron .",
-    "pack": "npm run pack:osx && npm run pack:win",
-    "pack:osx": "electron-packager . NicoTunes --out=dist/osx --platform=darwin --arch=x64 --version=0.37.5 --icon=res/img/logo.icns --prune --overwrite",
-    "pack:win": "electron-packager . NicoTunes --out=dist/win --platform=win32 --arch=ia32 --version=0.37.5 --icon=res/img/logo.ico --prune --overwrite",
-    "archive": "npm run archive:osx && npm run archive:win",
-    "archive:osx": "npm run pack:osx && zip -j dist/NicoTunes-osx.zip dist/osx/NicoTunes-darwin-x64",
-    "archive:win": "npm run pack:win && zip -j dist/NicoTunes-win.zip dist/win/NicoTunes-win32-ia32"
+    "init": "gulp js css html",
+    "start": "electron ./",
+    "pack": "npm run pack:osx && npm run pack:win32",
+    "pack:osx": "electron-packager ./ nicotunes --out=dist/osx --platform=darwin --arch=x64 --version=0.37.5 --icon=res/img/logo.icns --prune --overwrite",
+    "pack:win32": "electron-packager ./ nicotunes --out=dist/win --platform=win32 --arch=ia32 --version=0.37.5 --icon=res/img/logo.ico --prune --overwrite"
   },
   "repository": {
     "type": "git",
@@ -28,30 +26,31 @@
     "babel-preset-react": "^6.1.18",
     "babel-preset-stage-0": "^6.5.0",
     "babel-preset-stage-1": "^6.3.13",
-    "electron-packager": "^6.0.2",
+    "electron-packager": "^7.0.1",
     "electron-prebuilt": "^0.37.5",
     "gulp": "^3.8.11",
     "gulp-babel": "^6.1.1",
     "gulp-changed": "^1.3.0",
     "gulp-compass": "^2.0.4",
     "gulp-htmlmin": "^1.3.0",
-    "gulp-pleeease": "^1.2.0",
+    "gulp-pleeease": "^2.0.2",
     "gulp-plumber": "^1.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-watch": "^4.2.4"
   },
   "dependencies": {
+    "request": "^2.72.0",
     "cheerio": "^0.20.0",
     "classnames": "^2.2.3",
     "material-ui": "^0.14.4",
-    "react": "^0.14.0",
+    "react": "^15.0.1",
     "react-dnd": "^2.0.2",
     "react-dnd-html5-backend": "^2.0.2",
-    "react-dom": "^0.14.0",
+    "react-dom": "^15.0.1",
     "react-redux": "^4.0.6",
-    "react-tap-event-plugin": "^0.2.2",
+    "react-tap-event-plugin": "^1.0.0",
     "redux": "^3.0.5",
     "redux-logger": "^2.3.1",
-    "redux-thunk": "^1.0.3"
+    "redux-thunk": "^2.0.1"
   }
 }

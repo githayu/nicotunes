@@ -30,7 +30,8 @@ gulp.task('js', function() {
     .pipe(babel({
       presets: ['es2017', 'stage-1', 'stage-0', 'react'],
       plugins: ['transform-decorators-legacy'],
-      compact: true
+      compact: true,
+      comments: false
     }))
     .pipe(gulp.dest('./app'));
 });

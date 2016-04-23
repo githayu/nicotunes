@@ -1,8 +1,8 @@
 # NicoTunes
 NicoTunes は、ニコニコ動画の音楽再生に特化したデスクトップ向け音楽プレイヤーです。
 
-<!-- - **[NicoTunes ウェブサイト](https://nanoway.net/nicotunes)** -->
-<!-- - **[NicoTunes ダウンロード](https://github.com/githayu/nicotunes/releases/latest)** -->
+- **[NicoTunes ウェブサイト](https://nanoway.net/nicotunes)**
+- **[NicoTunes ダウンロード](https://github.com/githayu/nicotunes/releases/latest)**
 - **[NicoTunes 開発タスク](https://trello.com/b/rtxLfzyF/nicotunes)**
 
 ## 機能
@@ -15,8 +15,7 @@ NicoTunes は、ニコニコ動画の音楽再生に特化したデスクトッ�
 ~~~sh
 git clone https://github.com/githayu/nicotunes.git
 cd nicotunes
-npm i
-gulp css html js
+npm i && npm run init
 npm start
 ~~~
 
