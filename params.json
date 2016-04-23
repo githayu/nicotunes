@@ -1,0 +1,6 @@
+{
+  "name": "NicoTunes",
+  "tagline": "Niconico Music Player",
+  "body": "# NicoTunes\r\nNicoTunes は、ニコニコ動画の音楽再生に特化したデスクトップ向け音楽プレイヤーです。\r\n\r\n- **[NicoTunes ウェブサイト](https://nanoway.net/nicotunes)**\r\n- **[NicoTunes ダウンロード](https://github.com/githayu/nicotunes/releases/latest)**\r\n- **[NicoTunes 開発タスク](https://trello.com/b/rtxLfzyF/nicotunes)**\r\n\r\n## 機能\r\n- サビからの再生機能で様々な楽曲を視聴できます。\r\n- エンコードされた音声ファイルを利用するので余計な通信が発生しません。\r\n- 再生キュー方式による連続再生や、シャッフル・リピートなどの通常機能も搭載。\r\n- ニコニコ動画のマルチアカウントに対応。\r\n\r\n## Development\r\n~~~sh\r\ngit clone https://github.com/githayu/nicotunes.git\r\ncd nicotunes\r\nnpm i && npm run init\r\nnpm start\r\n~~~\r\n\r\n## License\r\n[MIT License](LICENSE) の下に提供されています。\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
