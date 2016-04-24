@@ -5,11 +5,14 @@ machine:
 
 dependencies:
   pre:
+    - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    - echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list
+    - sudo add-apt-repository -y ppa:ubuntu-wine/ppa
     - sudo apt-get update
-    - sudo apt-get install wine
+    - sudo apt-get install -y ruby ruby-dev gcc make icnsutils graphicsmagick xz-utils wine1.8 mono-complete gcc-multilib g++-multilib
+    - gem install fpm
   override:
     - npm i
-    - npm i -D request
   post:
     - npm run init
 
@@ -17,4 +20,9 @@ deployment:
   master:
     branch: master
     commands:
-      - ./scripts/release.sh
+      - ./scripts/mater.sh
+
+  develop:
+    branch: develop
+    commands:
+      - npm run release

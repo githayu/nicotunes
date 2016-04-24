@@ -1,7 +1,7 @@
 import App from 'app'
-import Menu from 'menu'
-import electron, { dialog } from 'electron'
+import electron, { Menu, dialog, shell } from 'electron'
 import BrowserWindow from 'browser-window'
+import request from 'request'
 
 var mainWindow = null;
 
@@ -9,7 +9,7 @@ require('crash-reporter').start();
 
 let menu = Menu.buildFromTemplate([
   {
-    label: App.getName(),
+    label: 'NicoTunes',
     submenu: [
       {
         label: 'NicoTunes について',
@@ -69,10 +69,45 @@ App.on('ready', function() {
 
   mainWindow.loadUrl(`file://${__dirname}/../html/index.html`);
 
-  // mainWindow.openDevTools();
+  mainWindow.openDevTools();
+
+
+  request({
+    url: 'https://api.github.com/repos/githayu/nicotunes/releases/latest',
+    headers: { 'User-Agent': `NicoTunes ${App.getVersion()} ${process.platform} ${process.arch}` }
+  }, (err, res, body) => {
+    let latest = JSON.parse(body);
+
+    // mainWindow.webContents.on('did-finish-load', () => {
+    //   mainWindow.webContents.send('debug', latest);
+    // });
+
+    if (App.getVersion() !== latest.tag_name.slice(1)) {
+      dialog.showMessageBox({
+        type: 'info',
+        buttons: ['更新する', 'キャンセル'],
+        title: 'NicoTunes',
+        message: `最新バージョン ${latest.tag_name} の更新が利用可能です。`,
+        detail: '更新しますか？'
+      }, button => {
+        if (button === 0) {
+          shell.openExternal(latest.html_url);
+        }
+      });
+    }
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+});
+
+App.on('will-finish-launching', () => {
+  App.on('open-url', (...e) => {
+    e.preventDefault();
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow.webContents.send('debug', e);
+    });
   });
 });
 

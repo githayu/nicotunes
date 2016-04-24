@@ -6,9 +6,7 @@
   "scripts": {
     "init": "gulp js css html",
     "start": "electron ./",
-    "pack": "npm run pack:osx && npm run pack:win32",
-    "pack:osx": "electron-packager ./ nicotunes --out=dist/osx --platform=darwin --arch=x64 --version=0.37.5 --icon=res/img/logo.icns --prune --overwrite",
-    "pack:win32": "electron-packager ./ nicotunes --out=dist/win --platform=win32 --arch=ia32 --version=0.37.5 --icon=res/img/logo.ico --prune --overwrite"
+    "dist": "build --platform darwin --platform win32 --platform linux --arch all"
   },
   "repository": {
     "type": "git",
@@ -17,15 +15,14 @@
   "bugs": {
     "url": "https://github.com/githayu/nicotunes/issues"
   },
-  "homepage": "https://nanoway.net/nicotunes",
   "author": "Hayu",
-  "license": "MIT",
   "devDependencies": {
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-preset-es2017": "^1.3.1",
     "babel-preset-react": "^6.1.18",
     "babel-preset-stage-0": "^6.5.0",
     "babel-preset-stage-1": "^6.3.13",
+    "electron-builder": "^3.9.0",
     "electron-packager": "^7.0.1",
     "electron-prebuilt": "^0.37.5",
     "gulp": "^3.8.11",
@@ -38,19 +35,30 @@
     "gulp-rename": "^1.2.2",
     "gulp-watch": "^4.2.4"
   },
-  "dependencies": {
-    "request": "^2.72.0",
-    "cheerio": "^0.20.0",
-    "classnames": "^2.2.3",
-    "material-ui": "^0.14.4",
-    "react": "^15.0.1",
-    "react-dnd": "^2.0.2",
-    "react-dnd-html5-backend": "^2.0.2",
-    "react-dom": "^15.0.1",
-    "react-redux": "^4.0.6",
-    "react-tap-event-plugin": "^1.0.0",
-    "redux": "^3.0.5",
-    "redux-logger": "^2.3.1",
-    "redux-thunk": "^2.0.1"
+  "build": {
+    "app-bundle-id": "net.nanoway.nicotunes",
+    "osx": {
+      "title": "NicoTunes",
+      "icon": "build/icon.icns",
+      "background": "build/background.png",
+      "icon-size": "80",
+      "contents": [
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 220,
+          "type": "file"
+        }
+      ]
+    },
+    "win": {
+      "title": "NicoTunes",
+      "icon": "build/icon.ico"
+    }
   }
 }

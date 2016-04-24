@@ -1,0 +1,24 @@
+{
+  "name": "NicoTunes",
+  "description": "Niconico Music Player",
+  "version": "0.1.0",
+  "author": "Hayu <admin@nanoway.net>",
+  "main": "js/main.js",
+  "homepage": "https://nanoway.net/nicotunes",
+  "license": "MIT",
+  "dependencies": {
+    "request": "^2.72.0",
+    "cheerio": "^0.20.0",
+    "classnames": "^2.2.3",
+    "material-ui": "^0.14.4",
+    "react": "^15.0.1",
+    "react-dnd": "^2.0.2",
+    "react-dnd-html5-backend": "^2.0.2",
+    "react-dom": "^15.0.1",
+    "react-redux": "^4.0.6",
+    "react-tap-event-plugin": "^1.0.0",
+    "redux": "^3.0.5",
+    "redux-logger": "^2.3.1",
+    "redux-thunk": "^2.0.1"
+  }
+}

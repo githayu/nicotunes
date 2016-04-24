@@ -1,4 +1,5 @@
 node_modules
-dist
-app
+dist/
+app/*
+!app/package.json
 *.log
