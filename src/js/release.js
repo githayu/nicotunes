@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import request from 'request'
 import fs from 'fs'
 import { exec } from 'child_process'
@@ -88,7 +90,7 @@ const create_release = () => {
         target_commitish: GITHUB_REPO_BRANCH,
         name: `v${config.version}`,
         draft: false,
-        prerelease: false
+        prerelease: GITHUB_REPO_BRANCH === 'develop' ? true : false
       },
       headers: Headers
     }, (err, res, body) => {
@@ -109,13 +111,11 @@ const upload_file = url => {
 
   url = url.replace('{?name,label}', '');
 
-  let uploadFiles = [
-    [`Nicotunes-v${config.version}-osx.zip`, '/dist/osx/nicotunes-osx.zip'],
-    [`Nicotunes-v${config.version}-win32.zip`, '/dist/win/nicotunes-win32.zip'],
-  ];
+  let releaseDir = process.cwd() + '/dist/release',
+      uploadFiles = fs.readdirSync(releaseDir);
 
   return new Promise.all(uploadFiles.map(file => {
-    let filePath = process.cwd() + file[1];
+    let filePath = [releaseDir, file].join('/');
 
     fs.stat(filePath, (fileError, fileInfo) => {
       return new Promise((resolve, reject) => {
@@ -124,7 +124,7 @@ const upload_file = url => {
         fs.createReadStream(filePath).pipe(request.put({
           url,
           json: true,
-          qs: { name: file[0] },
+          qs: { name: file },
           headers: Object.assign({}, Headers, {
             'Content-Type': 'application/zip',
             'Content-Length': fileInfo.size

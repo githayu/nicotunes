@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+spawn sudo apt-get install -y wine1.8 mono-complete ruby ruby-dev gcc make icnsutils graphicsmagick xz-utils gcc-multilib g++-multilib jq
+match_max 100000
+expect "*Configuring ttf-mscorefonts-installer*"
+send -- "	"
+expect "*<Ok>*"
+send -- " "
+expect "*Do you accept the EULA license terms?*"
+send -- "	"
+expect "*<No>*"
+send -- " "
+expect eof

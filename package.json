@@ -1,19 +1,9 @@
 {
-  "name": "NicoTunes",
-  "version": "0.1.0",
-  "description": "Niconico Music Player",
-  "main": "app/js/main.js",
   "scripts": {
-    "init": "gulp js css html",
-    "start": "electron ./",
-    "dist": "build --platform darwin --platform win32 --platform linux --arch all"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/githayu/nicotunes.git"
-  },
-  "bugs": {
-    "url": "https://github.com/githayu/nicotunes/issues"
+    "compile": "gulp js css html",
+    "start": "electron ./app",
+    "pack": "build",
+    "dist": "build --platform all --arch all"
   },
   "author": "Hayu",
   "devDependencies": {
@@ -37,28 +27,21 @@
   },
   "build": {
     "app-bundle-id": "net.nanoway.nicotunes",
+    "app-category-type": "public.app-category.music",
     "osx": {
-      "title": "NicoTunes",
-      "icon": "build/icon.icns",
-      "background": "build/background.png",
-      "icon-size": "80",
       "contents": [
         {
           "x": 410,
-          "y": 220,
+          "y": 150,
           "type": "link",
           "path": "/Applications"
         },
         {
           "x": 130,
-          "y": 220,
+          "y": 150,
           "type": "file"
         }
       ]
-    },
-    "win": {
-      "title": "NicoTunes",
-      "icon": "build/icon.ico"
     }
   }
 }

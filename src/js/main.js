@@ -1,7 +1,10 @@
-import App from 'app'
+import app from 'app'
 import electron, { Menu, dialog, shell } from 'electron'
 import BrowserWindow from 'browser-window'
 import request from 'request'
+import electronSquirrelSetup from 'electron-squirrel-startup'
+
+if (electronSquirrelSetup || handleSquirrelEvent()) app.quit();
 
 var mainWindow = null;
 
@@ -9,10 +12,10 @@ require('crash-reporter').start();
 
 let menu = Menu.buildFromTemplate([
   {
-    label: 'NicoTunes',
+    label: app.getName(),
     submenu: [
       {
-        label: 'NicoTunes について',
+        label: `${app.getName()} について`,
         click: showAboutDialog.bind()
       },
       { type: 'separator' },
@@ -21,11 +24,11 @@ let menu = Menu.buildFromTemplate([
       //   accelerator: 'CmdOrCtrl+,',
       //   click: showSettingsPage.bind()
       // },
-      { type: 'separator' },
+      // { type: 'separator' },
       {
-        label: 'NicoTunes を終了',
+        label: `${app.getName()} を終了`,
         accelerator: 'CmdOrCtrl+Q',
-        click: App.quit.bind()
+        click: app.quit.bind()
       }
     ]
   }, {
@@ -42,21 +45,8 @@ let menu = Menu.buildFromTemplate([
   }
 ]);
 
-function showAboutDialog() {
-  dialog.showMessageBox({
-    type: 'info',
-    buttons: [],
-    title: 'NicoTunes について',
-    message: App.getName(),
-    detail: `バージョン ${App.getVersion()}\r\n© ${new Date().getFullYear()} Nanoway All rights reserved`
-  });
-}
 
-function showSettingsPage() {
-
-}
-
-App.on('ready', function() {
+app.on('ready', function() {
 
   Menu.setApplicationMenu(menu);
 
@@ -69,12 +59,11 @@ App.on('ready', function() {
 
   mainWindow.loadUrl(`file://${__dirname}/../html/index.html`);
 
-  mainWindow.openDevTools();
-
+  // mainWindow.openDevTools();
 
   request({
     url: 'https://api.github.com/repos/githayu/nicotunes/releases/latest',
-    headers: { 'User-Agent': `NicoTunes ${App.getVersion()} ${process.platform} ${process.arch}` }
+    headers: { 'User-Agent': `NicoTunes ${app.getVersion()} ${process.platform} ${process.arch}` }
   }, (err, res, body) => {
     let latest = JSON.parse(body);
 
@@ -82,11 +71,11 @@ App.on('ready', function() {
     //   mainWindow.webContents.send('debug', latest);
     // });
 
-    if (App.getVersion() !== latest.tag_name.slice(1)) {
+    if (app.getVersion() !== latest.tag_name.slice(1)) {
       dialog.showMessageBox({
         type: 'info',
         buttons: ['更新する', 'キャンセル'],
-        title: 'NicoTunes',
+        title: app.getName(),
         message: `最新バージョン ${latest.tag_name} の更新が利用可能です。`,
         detail: '更新しますか？'
       }, button => {
@@ -102,8 +91,8 @@ App.on('ready', function() {
   });
 });
 
-App.on('will-finish-launching', () => {
-  App.on('open-url', (...e) => {
+app.on('will-finish-launching', () => {
+  app.on('open-url', (...e) => {
     e.preventDefault();
     mainWindow.webContents.on('did-finish-load', () => {
       mainWindow.webContents.send('debug', e);
@@ -111,8 +100,82 @@ App.on('will-finish-launching', () => {
   });
 });
 
-App.on('window-all-closed', () => {
+app.on('window-all-closed', () => {
   if (process.platform != 'drawin') {
-    App.quit();
+    app.quit();
   }
 });
+
+
+
+function showAboutDialog() {
+  dialog.showMessageBox({
+    type: 'info',
+    buttons: [],
+    title: `${app.getName()} について`,
+    message: app.getName(),
+    detail: `バージョン ${app.getVersion()}\r\n© ${new Date().getFullYear()} Nanoway All rights reserved`
+  });
+}
+
+function handleSquirrelEvent() {
+  if (process.argv.length === 1) {
+    return false;
+  }
+
+  const ChildProcess = require('child_process');
+  const path = require('path');
+
+  const appFolder = path.resolve(process.execPath, '..');
+  const rootAtomFolder = path.resolve(appFolder, '..');
+  const updateDotExe = path.resolve(path.join(rootAtomFolder, 'Update.exe'));
+  const exeName = path.basename(process.execPath);
+
+  const spawn = function(command, args) {
+    let spawnedProcess, error;
+
+    try {
+      spawnedProcess = ChildProcess.spawn(command, args, {detached: true});
+    } catch (error) {}
+
+    return spawnedProcess;
+  };
+
+  const spawnUpdate = function(args) {
+    return spawn(updateDotExe, args);
+  };
+
+  const squirrelEvent = process.argv[1];
+  switch (squirrelEvent) {
+    case '--squirrel-install':
+    case '--squirrel-updated':
+      // Optionally do things such as:
+      // - Add your .exe to the PATH
+      // - Write to the registry for things like file associations and
+      //   explorer context menus
+
+      // Install desktop and start menu shortcuts
+      spawnUpdate(['--createShortcut', exeName]);
+
+      setTimeout(app.quit, 1000);
+      return true;
+
+    case '--squirrel-uninstall':
+      // Undo anything you did in the --squirrel-install and
+      // --squirrel-updated handlers
+
+      // Remove desktop and start menu shortcuts
+      spawnUpdate(['--removeShortcut', exeName]);
+
+      setTimeout(app.quit, 1000);
+      return true;
+
+    case '--squirrel-obsolete':
+      // This is called on the outgoing version of your app before
+      // we update to the new version - it's the opposite of
+      // --squirrel-updated
+
+      app.quit();
+      return true;
+  }
+}

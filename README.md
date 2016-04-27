@@ -1,4 +1,6 @@
 # NicoTunes
+![Circle CI](https://circleci.com/gh/githayu/nicotunes.svg?style=svg)
+
 NicoTunes は、ニコニコ動画の音楽再生に特化したデスクトップ向け音楽プレイヤーです。
 
 - **[NicoTunes ウェブサイト](https://nanoway.net/nicotunes)**
@@ -15,7 +17,7 @@ NicoTunes は、ニコニコ動画の音楽再生に特化したデスクトッ�
 ~~~sh
 git clone https://github.com/githayu/nicotunes.git
 cd nicotunes
-npm i && npm run init
+npm i && npm run compile
 npm start
 ~~~
 
