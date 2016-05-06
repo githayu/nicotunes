@@ -5,8 +5,6 @@ import { connect } from 'react-redux'
 import { Tabs, Tab, RaisedButton } from 'material-ui'
 
 import * as Actions from '../actions/app'
-import IDBController from '../utils/indexeddb'
-import LocalStorageController from '../utils/localstorage'
 
 export default class Settings extends Component {
   constructor() {

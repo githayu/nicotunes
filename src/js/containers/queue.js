@@ -10,7 +10,7 @@ import classNames from 'classnames'
 import QueueItem from './queue-item'
 import * as Actions from '../actions/app'
 import Utils from '../utils/utils'
-import CreateContextMeun from '../utils/context-menu'
+import CreateContextMeun from '../utils/ContextMenu'
 
 @DragDropContext(HTML5Backend)
 
@@ -37,9 +37,9 @@ export default class Queue extends Component {
 
   render() {
     if (this.props.queue.items == null) {
-      return <div className="queue">読込中</div>;
+      return <div className="queue"></div>;
     } else if (!this.props.queue.items.length) {
-      return <div className="queue">再生キューはありません</div>;
+      return <div className="queue"></div>;
     }
 
     return (

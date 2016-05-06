@@ -9,10 +9,9 @@ test:
     - npm run compile
   post:
     - npm run dist
-    - ls -la ./dist
     - ./scripts/package.sh
-# deployment:
-#   master:
-#     branch: [master, develop]
-#     commands:
-#       - node ./app/js/release
+deployment:
+  master:
+    branch: [master, develop]
+    commands:
+      - node ./app/js/release

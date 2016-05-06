@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import * as Actions from '../actions/app'
-import CreateContextMeun from '../utils/context-menu'
+import CreateContextMeun from '../utils/ContextMenu'
 
 export default class MyLists extends Component {
   componentDidMount() {

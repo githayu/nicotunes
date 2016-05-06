@@ -13,6 +13,7 @@ import Ranking from './ranking'
 import Search from './search'
 import Settings from './settings'
 
+import PlayContent from '../containers/play-content'
 import Navigation from '../containers/navigation'
 import Player from './player'
 import Queue from './queue'
@@ -25,7 +26,7 @@ export default class Root extends Component {
   render() {
     if (this.props.app.location == 'initialize') {
       return (
-        <div id="nico-tunes">
+        <div id="nico-tunes" ref="app">
           <Navigation />
 
           <div className="loading-progress">
@@ -44,13 +45,22 @@ export default class Root extends Component {
       <div id="nico-tunes" className={classNames(signature)}>
         <Navigation />
 
-        <div className="content">
-          { this.contentRender() }
+        <div className="main-wrapper">
+          <header className="title-bar">NicoTunes</header>
 
-          <Player />
-          <Queue />
-          <div className="loading-progress">
-            <CircularProgress color="#0288d1" />
+          <div className="content-container">
+            <div className="content">
+              { this.contentRender() }
+
+              <Player />
+              <Queue />
+              <div className="loading-progress">
+                <CircularProgress color="#0288d1" />
+              </div>
+            </div>
+
+            { this.props.play.active ? <PlayContent /> : '' }
+
           </div>
         </div>
       </div>
@@ -71,7 +81,8 @@ export default class Root extends Component {
 
 export default connect(
   state => ({
-    app: state.app
+    app: state.app,
+    play: state.play
   }),
   dispatch => bindActionCreators(Actions, dispatch)
 )(Root);

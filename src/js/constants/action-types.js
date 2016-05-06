@@ -42,7 +42,8 @@ export const GET = {
       RANKING: 'GNAR',
       SEARCH: 'GET_NICO_API_SEARCH',
       SUGGEST: 'GET_NICO_API_SUGGEST',
-      PLAY: 'GNAP'
+      PLAY: 'GNAP',
+      GETFLV: 'GET_NICO_API_GETFLV'
     }
   },
 

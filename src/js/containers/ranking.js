@@ -8,7 +8,7 @@ import { Tabs, Tab, CircularProgress } from 'material-ui'
 import * as Actions from '../actions/app'
 import Utils from '../utils/utils'
 import VideoItem from '../components/video-item'
-import CreateContextMeun from '../utils/context-menu'
+import CreateContextMeun from '../utils/ContextMenu'
 
 export default class Ranking extends Component {
   componentDidMount() {

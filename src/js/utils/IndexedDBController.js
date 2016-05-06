@@ -1,4 +1,4 @@
-export default class IDBController {
+export default class IndexedDBController {
   constructor(req) {
     const values = Object.assign({}, {
       name: 'NicoTunes',

@@ -4,21 +4,20 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { IconButton } from 'material-ui'
 import classNames from 'classnames'
+import electron, { ipcRenderer } from 'electron'
 
 import * as Actions from '../actions/app'
 import Utils from '../utils/utils'
-import IDBController from '../utils/indexeddb'
-import LocalStorageController from '../utils/localstorage'
-import CreateContextMeun from '../utils/context-menu'
+import LocalStorageController from '../utils/LocalStorageController'
+import CreateContextMeun from '../utils/ContextMenu'
 
 export default class Player extends Component {
   componentWillMount() {
     let storage = this.props.appLocalStorage.get();
 
     // Audio
-    this.audio = new Audio();
-    this.audio.autoplay = true;
-    this.audio.volume = storage.volume;
+    this.props.play.audio.autoplay = true;
+    this.props.play.audio.volume = storage.volume;
 
     this.setState({
       repeat: 0,
@@ -26,25 +25,33 @@ export default class Player extends Component {
       seeking: false
     });
 
-    this.audio.addEventListener('timeupdate', this.timeUpdate.bind(this), false);
-    this.audio.addEventListener('play', this.props.playState.bind(this, { ended: false, paused: false }), false);
-    this.audio.addEventListener('pause', this.props.playState.bind(this, { paused: true }), false);
-    this.audio.addEventListener('ended', this.playEnded.bind(this), false);
+    this.props.play.audio.addEventListener('timeupdate', this.timeUpdate.bind(this), false);
+    this.props.play.audio.addEventListener('play', this.props.playState.bind(this, { ended: false, paused: false }), false);
+    this.props.play.audio.addEventListener('pause', this.props.playState.bind(this, { paused: true }), false);
+    this.props.play.audio.addEventListener('ended', this.playEnded.bind(this), false);
+
+    ipcRenderer.on('mainWindowDropItem', (e, id) => {
+      this.props.PlayMusic({
+        account: this.props.accounts.niconico.selected,
+        video: { id },
+        mode: ['fetch']
+      });
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.play.audioUrl !== this.props.play.audioUrl) {
-      this.audio.src = this.props.play.audioUrl;
-      this.audio.play();
+      this.props.play.audio.src = this.props.play.audioUrl;
+      this.props.play.audio.play();
     }
   }
 
   render() {
-    let volumeLevel = (this.audio.muted || this.audio.volume == 0) ? 'mute' :
-                      (this.audio.volume >= 0.8) ? 'large' :
-                      (this.audio.volume >= 0.2) ? 'medium' : 'small',
+    let volumeLevel = (this.props.play.audio.muted || this.props.play.audio.volume == 0) ? 'mute' :
+                      (this.props.play.audio.volume >= 0.8) ? 'large' :
+                      (this.props.play.audio.volume >= 0.2) ? 'medium' : 'small',
 
-        volume = this.audio.muted ? 0 : this.audio.volume * 100,
+        volume = this.props.play.audio.muted ? 0 : this.props.play.audio.volume * 100,
 
         renderThumbnailUrl = '',
         renderAudioSrc     = '',
@@ -53,13 +60,7 @@ export default class Player extends Component {
         renderAuthor       = '';
 
     if (this.props.play.active) {
-      renderThumbnailUrl = this.props.play.video.thumbnailLargeUrl ?
-                           this.props.play.video.thumbnailLargeUrl :
-                           this.props.play.video.thumbnailUrl;
-
       renderDuration = Utils.FormatSeconds(this.props.play.video.lengthInSeconds);
-      renderTitle    = this.props.play.video.title;
-      renderAuthor   = Utils.UrlParamDecoder(decodeURIComponent(this.props.play.audioUrl)).artist;
     }
 
     return (
@@ -70,19 +71,7 @@ export default class Player extends Component {
         })}
         onContextMenu={this.contextMeun.bind(this)}>
 
-        <div
-          className="player-thumbnail"
-          ref="playerThumbnail"
-          style={{
-            backgroundImage: `url(${renderThumbnailUrl})`
-          }} />
-
         <div className="player-content">
-          <div className="player-info">
-            <h1 ref="playerTitle">{renderTitle}</h1>
-            <p className="author" ref="playerAuthor">{renderAuthor}</p>
-          </div>
-
           <div className="player-control">
             <div className="player-controller">
               <IconButton
@@ -131,7 +120,7 @@ export default class Player extends Component {
                   <input
                     type="range"
                     onChange={this.volumeChange.bind(this)}
-                    defaultValue={this.audio.volume * 100}
+                    defaultValue={this.props.play.audio.volume * 100}
                     className="player-volume-slider"
                     ref="playerVolumeSlider"
                     style={{
@@ -177,9 +166,9 @@ export default class Player extends Component {
     let mode = (this.state.repeat + 1 <= this.props.repeat.length - 1) ? this.state.repeat + 1 : 0;
 
     switch (mode) {
-      case 0: this.audio.loop = false; this.state.queueLoop = false; break;
-      case 1: this.audio.loop = false; this.state.queueLoop = true; break;
-      case 2: this.audio.loop = true; this.state.queueLoop = false; break;
+      case 0: this.props.play.audio.loop = false; this.state.queueLoop = false; break;
+      case 1: this.props.play.audio.loop = false; this.state.queueLoop = true; break;
+      case 2: this.props.play.audio.loop = true; this.state.queueLoop = false; break;
     }
 
     this.setState({
@@ -190,7 +179,7 @@ export default class Player extends Component {
   updateProperty(prop, value) {
     if (value.constructor.name === 'SyntheticMouseEvent') value = !this.state[prop];
 
-    this.audio[prop] = value;
+    this.props.play.audio[prop] = value;
 
     this.setState({
       [prop]: value
@@ -225,7 +214,7 @@ export default class Player extends Component {
   }
 
   playMusic(e) {
-    this.audio.paused ? this.audio.play() : this.audio.pause();
+    this.props.play.audio.paused ? this.props.play.audio.play() : this.props.play.audio.pause();
   }
 
   volumeChange(e) {
@@ -234,14 +223,14 @@ export default class Player extends Component {
     this.setState({ volume });
     this.props.appLocalStorage.update({ volume });
 
-    this.audio.volume = volume;
+    this.props.play.audio.volume = volume;
   }
 
   timeUpdate(e) {
-    this.refs.playerTime.innerText = Utils.FormatSeconds(this.audio.currentTime);
+    this.refs.playerTime.innerText = Utils.FormatSeconds(this.props.play.audio.currentTime);
 
     if (!this.state.seeking) {
-      let width = (this.audio.currentTime / this.audio.duration) * 100;
+      let width = (this.props.play.audio.currentTime / this.props.play.audio.duration) * 100;
       this.refs.playerPlayProgress.style.width = `${width}%`;
     }
   }
@@ -288,7 +277,7 @@ export default class Player extends Component {
   }
 
   progressMouseUp(e) {
-    this.audio.currentTime = ~~ ((e.offsetX / this.refs.playerProgress.clientWidth) * this.audio.duration);
+    this.props.play.audio.currentTime = ~~ ((e.offsetX / this.refs.playerProgress.clientWidth) * this.props.play.audio.duration);
 
     this.setState({ seeking: false });
     window.removeEventListener('mousemove', this, false);

@@ -18,7 +18,7 @@ import {
 
 import * as Actions from '../actions/app'
 import VideoItem from '../components/video-item'
-import CreateContextMeun from '../utils/context-menu'
+import CreateContextMeun from '../utils/ContextMenu'
 
 export default class Search extends Component {
   componentWillMount() {

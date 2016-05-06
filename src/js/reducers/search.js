@@ -9,7 +9,7 @@ const initialState = {
   query: {
     q: '',
     targets: ['title', 'description', 'tags'].join(),
-    fields: ['contentId', 'title', 'description', 'tags', 'categoryTags', 'viewCounter', 'mylistCounter', 'commentCounter', 'startTime', 'thumbnailUrl', 'lengthSeconds', 'channelId', 'mainCommunityId', 'lastResBody', 'lastCommentTime'].join(),
+    fields: ['contentId', 'title', 'description', 'tags', 'categoryTags', 'viewCounter', 'mylistCounter', 'commentCounter', 'startTime', 'thumbnailUrl', 'lengthSeconds', 'channelId', 'mainCommunityId', 'lastResBody', 'lastCommentTime', 'threadId'].join(),
     filters: {},
     _sort: '-viewCounter',
     _offset: 0,
@@ -29,6 +29,7 @@ export default function search(state = initialState, action) {
         return {
           id: e.contentId,
           thumbnailUrl: e.thumbnailUrl,
+          defaultThreadId: e.threadId,
           lengthInSeconds: e.lengthSeconds,
           viewCount: e.viewCounter,
           myListCount: e.mylistCounter,

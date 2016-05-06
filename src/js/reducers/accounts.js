@@ -1,5 +1,5 @@
 import { ACTION, GET, REQ } from '../constants/action-types'
-import LocalStorageController from '../utils/localstorage'
+import LocalStorageController from '../utils/LocalStorageController'
 
 const appLocalStorage = new LocalStorageController('app');
 const initialState = {

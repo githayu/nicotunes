@@ -5,42 +5,60 @@
 # 2: Win64
 
 readonly LINUX=(amd64 i386)
+readonly WINDOWS=(ia32 x64)
 readonly PROJECT_DIR=`pwd`
 readonly PROJECT_NAME=`cat ${PROJECT_DIR}/app/package.json | jq -r .name`
 readonly PROJECT_VER=`cat ${PROJECT_DIR}/app/package.json | jq -r .version`
 
+rm -dr ./dist
+
 # Distribution
-# case $CIRCLE_NODE_INDEX in
-#   0) node_modules/.bin/build --platform darwin --platform linux --arch all ;;
-#   1) node_modules/.bin/build --platform win32 --arch ia32 ;;
-#   2) node_modules/.bin/build --platform win32 --arch x64 ;;
-# esac
+npm run dist
 
 cd ${PROJECT_DIR}/dist/
-
 mkdir -p ./release
 
-if [ -d ${PROJECT_DIR}/dist/${PROJECT_NAME}-darwin-x64 -a ${PROJECT_DIR}/dist/${PROJECT_NAME}-darwin-x64/${PROJECT_NAME}.app ]; then
+# OSX
+if [ -d ./${PROJECT_NAME}-darwin-x64 ]; then
   cd ${PROJECT_DIR}/dist/${PROJECT_NAME}-darwin-x64
-  zip ../release/${PROJECT_NAME}-${PROJECT_VER}-mac.zip ${PROJECT_NAME}.app
+
+  # app
+  if [ -f ${PROJECT_NAME}-${PROJECT_VER}-mac.zip ]; then
+    mv ${PROJECT_NAME}-${PROJECT_VER}-mac.zip ../release/${PROJECT_NAME}-${PROJECT_VER}-mac-app.zip
+  fi
+
+  # dmg
+  if [ -f ${PROJECT_NAME}-${PROJECT_VER}.dmg ]; then
+    zip ../release/${PROJECT_NAME}-${PROJECT_VER}-mac-dmg.zip ${PROJECT_NAME}-${PROJECT_VER}.dmg
+  fi
 fi
 
 cd ${PROJECT_DIR}/dist/
 
+# Linux
 for i in ${LINUX[@]}; do
-  if [ -e ${PROJECT_NAME}-${PROJECT_VER}-${i}.deb ]; then
-    zip release/${PROJECT_NAME}-${PROJECT_VER}-${i}.zip ${PROJECT_NAME}-${PROJECT_VER}-${i}.deb
+  if [ -f ${PROJECT_NAME}-${PROJECT_VER}-${i}.deb ]; then
+    zip ./release/${PROJECT_NAME}-${PROJECT_VER}-linux-${i}.zip ${PROJECT_NAME}-${PROJECT_VER}-${i}.deb
   fi
 done
 
-cd ${PROJECT_DIR}/dist/
+# Windows 32 64 zip
+for i in ${WINDOWS[@]}; do
+  cd ${PROJECT_DIR}/dist/
+  dir="${PROJECT_NAME}-win32-${i}"
+  if [ -d $dir ]; then
+    zip -qr ./release/${PROJECT_NAME}-${PROJECT_VER}-win-${i}.zip $dir
+  fi
+done
 
-if [ -d ${PROJECT_DIR}/dist/win -a ${PROJECT_DIR}/dist/win/${PROJECT_NAME}Setup-${PROJECT_VER}-ia32.exe ]; then
+# Windows 32 exe
+if [ -f ${PROJECT_DIR}/dist/win/${PROJECT_NAME}Setup-${PROJECT_VER}-ia32.exe ]; then
   cd ${PROJECT_DIR}/dist/win
-  zip ../release/NicoTunesSetup-${PROJECT_VER}-ia32.zip ${PROJECT_NAME}Setup-${PROJECT_VER}-ia32.exe
-fi ;;
+  zip ../release/NicoTunesSetup-${PROJECT_VER}-win-ia32.zip ${PROJECT_NAME}Setup-${PROJECT_VER}-ia32.exe
+fi
 
-if [ -d ${PROJECT_DIR}/dist/win-x64 -a ${PROJECT_DIR}/dist/win/${PROJECT_NAME}Setup-${PROJECT_VER}.exe ]; then
+# Windows 64 exe
+if [ -f ${PROJECT_DIR}/dist/win-x64/${PROJECT_NAME}Setup-${PROJECT_VER}.exe ]; then
   cd ${PROJECT_DIR}/dist/win-x64
-  zip ../release/NicoTunesSetup-${PROJECT_VER}.zip ${PROJECT_NAME}Setup-${PROJECT_VER}.exe
+  zip ../release/NicoTunesSetup-${PROJECT_VER}-win-x64.zip ${PROJECT_NAME}Setup-${PROJECT_VER}.exe
 fi

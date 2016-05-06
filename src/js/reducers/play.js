@@ -5,7 +5,9 @@ const initialState = {
   paused: true,
   active: false,
   audioUrl: null,
-  loading: false
+  info: null,
+  loading: false,
+  audio: new Audio()
 };
 
 export default function play(state = initialState, action) {
@@ -15,10 +17,22 @@ export default function play(state = initialState, action) {
     case GET.NICO.API.PLAY: {
       return Object.assign({}, state, {
         audioUrl: action.data.audioUrl,
+        getFlvUrl: action.data.getFlvUrl,
+        getFlv: null,
+        type: 'audio',
         video: action.data.video,
+        info: action.data.info,
         paused: false,
         active: true,
         loading: false
+      });
+    }
+
+    case GET.NICO.API.GETFLV : {
+      return Object.assign({}, state, {
+        getFlv: action.getFlv,
+        selectedTab: 'views',
+        type: 'video'
       });
     }
 

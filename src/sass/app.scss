@@ -4,6 +4,7 @@
 @import "./_mylist";
 @import "./_navigation";
 @import "./_player";
+@import "./_play-content";
 @import "./_queue";
 @import "./_ranking";
 @import "./_search";
@@ -62,6 +63,27 @@ body {
     transform: translate(-50%, -50%);
     margin: 0 !important;
   }
+}
+
+.main-wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  .title-bar {
+    background-color: #fff;
+    line-height: 25px;
+    text-align: center;
+    box-shadow: 0 1px 1px rgba(0,0,0,.2);
+    position: relative;
+    z-index: 10;
+    -webkit-app-region: drag;
+  }
+}
+
+.content-container {
+  display: flex;
+  flex: 1;
 }
 
 .content {
