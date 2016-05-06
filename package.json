@@ -13,7 +13,6 @@
     "babel-preset-stage-0": "^6.5.0",
     "babel-preset-stage-1": "^6.3.13",
     "electron-builder": "^3.9.0",
-    "electron-packager": "^7.0.1",
     "electron-prebuilt": "^0.37.5",
     "gulp": "^3.8.11",
     "gulp-babel": "^6.1.1",

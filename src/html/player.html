@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Nicofinder Player</title>
+  <base href="http://www.nicofinder.net/" target="_self">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/watch/2/player.css">
+  <style>
+  :root {
+    overflow: hidden;
+  }
+
+  @font-face {
+    font-family: 'icon';
+    src: url('/font/material-design/icon.woff') format('woff'),
+         url('/font/material-design/icon.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  </style>
+</head>
+<body>
+
+<div id="player" class="no-easing"></div>
+
+<script>
+  window.jQuery = window.$ = require('jquery');
+
+  var scripts = [
+    '/js/common.js',
+    '/js/watch/2/player.js',
+    `file://${location.pathname}/../../js/player.js`
+  ];
+
+  for (let i = 0; i < scripts.length; i++) {
+    var script = document.createElement('script');
+        script.src = scripts[i];
+    document.body.appendChild(script);
+  }
+</script>
+</body>
+</html>

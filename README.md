@@ -1,7 +1,7 @@
 # NicoTunes
-![Circle CI](https://circleci.com/gh/githayu/nicotunes.svg?style=svg)
 
-NicoTunes は、ニコニコ動画の音楽再生に特化したデスクトップ向け音楽プレイヤーです。
+NicoTunes は、ニコニコ動画の音楽再生に特化したデスクトップ向け音楽プレイヤーです。  
+※まだ開発段階なので、動かないところがあったり動作も不安定です。
 
 - **[NicoTunes ウェブサイト](https://nanoway.net/nicotunes)**
 - **[NicoTunes ダウンロード](https://github.com/githayu/nicotunes/releases/latest)**
@@ -9,9 +9,10 @@ NicoTunes は、ニコニコ動画の音楽再生に特化したデスクトッ�
 
 ## 機能
 - サビからの再生機能で様々な楽曲を視聴できます。
-- エンコードされた音声ファイルを利用するので余計な通信が発生しません。
-- 再生キュー方式による連続再生や、シャッフル・リピートなどの通常機能も搭載。
-- ニコニコ動画のマルチアカウントに対応。
+- ボーカロイド曲で歌詞が登録されていれば歌詞も表示できます。
+- 音声ファイルを利用するので余計な通信が発生しません。
+- ニコニコ動画のマルチアカウント対応。
+- 動画も見れます。
 
 ## Development
 ~~~sh

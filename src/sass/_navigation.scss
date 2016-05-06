@@ -36,13 +36,20 @@
 }
 
 .navigation {
-  background-color: $mainColor;
+  background-color: rgba($mainColor, .95);
   flex: 0 0 80px;
+
+  &:before {
+    content: '';
+    -webkit-app-region: drag;
+    height: 25px;
+    display: block;
+  }
 
   .avatar-image {
     width: 60px;
     height: 60px;
-    margin: 20px auto 10px;
+    margin: 10px auto;
     display: block;
     border-radius: 4px;
   }

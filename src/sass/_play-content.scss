@@ -1,0 +1,251 @@
+.play-content {
+  flex: 0 0 400px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+
+  .play-header {
+    display: none;
+
+    &.active {
+      display: flex;
+    }
+  }
+}
+
+.play-info {
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  display: flex;
+  flex: 0 0;
+  background: no-repeat center/cover;
+  cursor: pointer;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    filter: blur(2px);
+    display: flex;
+  }
+
+  &:hover {
+    .play-thumbnail {
+      &:before {
+        content: '\f3aa';
+        font-family: icon;
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 50px;
+        height: 50px;
+        transform: translate(-50%,-50%);
+        color: #fff;
+        background-color: $mainColor;
+        border-radius: 100%;
+        text-align: center;
+        text-indent: 5px;
+        font-size: 2.5rem;
+        line-height: 50px;
+        z-index: 5;
+        box-shadow: 0 1px 5px rgba(0,0,0,.7);
+      }
+    }
+
+    .play-title {
+      color: $mainColor;
+    }
+  }
+
+  .play-thumbnail {
+    display: block;
+    flex: 0 0 130px;
+    height: 73px;
+    position: relative;
+    background-position: center;
+    background-size: cover;
+    border-radius: 2px;
+  }
+
+  .play-meta {
+    flex: 1;
+    position: relative;
+    padding: 14px 20px;
+    background-color: rgba(255,255,255,.5);
+    width: 0;
+  }
+
+  .play-title,
+  .play-artist-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  .play-title {
+    transition: color .1s
+  }
+
+  .play-artist-name {
+    font-size: .8rem;
+    color: #555;
+    margin-top: 3px;
+  }
+}
+
+.play-tabs {
+  flex: 0 0;
+}
+
+.play-tab-content {
+  flex: 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  > div {
+    display: none;
+
+    &.selected {
+      display: block;
+    }
+  }
+
+  .play-details-table {
+    width: 100%;
+
+    tr > th,
+    tr > td {
+      padding: 6px 0 6px 20px;
+      border-bottom: 1px #eee solid;
+    }
+
+    th {
+      text-align: left;
+      width: 120px;
+    }
+
+
+    .play-detail-tags {
+      > a {
+        display: block;
+        background-color: #efefef;
+        margin-right: 5px;
+        border-radius: 20px;
+        padding: 2px 15px;
+        cursor: pointer;
+
+        + a {
+          margin-top: 5px;
+        }
+      }
+    }
+  }
+
+  .play-detail-table-list {
+    list-style: none;
+
+    > li {
+      &.link {
+        font-weight: bold;
+        color: $accentColor;
+        cursor: pointer;
+
+        &:hover {
+          color: $mainColor;
+          text-decoration: underline;
+        }
+      }
+
+      &.niconicodouga:before,
+      &.youtube:before,
+      &.vimeo:before,
+      &.soundcloud:before,
+      &.bilibili:before,
+      &.piapro:before,
+      &.file:before,
+      &.localfile:before {
+        font-family: icon;
+        margin-right: 5px;
+      }
+
+      &.niconicodouga {
+        &:before {
+          content: '\f2d9';
+          color: #000;
+        }
+      }
+
+      &.youtube {
+        &:before {
+          font-family: icon;
+          content: '\f408';
+          color: #CD201F;
+        }
+      }
+
+      &.vimeo {
+        &:before {
+          content: '\f404';
+          color: #1AB7EA;
+        }
+      }
+
+      &.soundcloud {
+        &:before {
+          content: '\f401';
+          color: #ff3a00;
+        }
+      }
+
+      &.bilibili {
+        &:before {
+          content: 'BiliBili';
+          color: #F06292;
+        }
+      }
+
+      &.piapro {
+        &:before {
+          content: 'Piapro';
+          color: #EC0180;
+        }
+      }
+    }
+  }
+}
+
+.play-lyrics {
+  padding: 20px;
+
+  > div {
+    + div {
+      margin-top: 15px;
+    }
+  }
+}
+
+.play-video-container {
+  position: relative;
+  width: 100%;
+
+  &:before {
+    content: '';
+    display: block;
+    padding-top: 56.25%;
+  }
+
+  > .play-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "NicoTunes",
   "description": "Niconico Music Player",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Hayu <admin@nanoway.net>",
   "main": "./js/main.js",
   "homepage": "https://nanoway.net/nicotunes",
@@ -17,6 +17,7 @@
     "cheerio": "^0.20.0",
     "classnames": "^2.2.3",
     "electron-squirrel-startup": "^0.1.4",
+    "jquery": "^2.2.3",
     "material-ui": "^0.14.4",
     "react": "^15.0.1",
     "react-dnd": "^2.0.2",

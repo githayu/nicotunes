@@ -33,6 +33,6 @@ ReactDOM.render(
   document.getElementById('app')
 );
 
-ipcRenderer.on('debug', (...args) => {
+ipcRenderer.on('debug', args => {
   console.log('debugLog:', args);
 });

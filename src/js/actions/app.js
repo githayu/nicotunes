@@ -1,15 +1,17 @@
-import remote, { dialog } from 'remote'
-
+import electron, { ipcRenderer } from 'electron'
+import remote, { dialog, session } from 'remote'
 import cheerio from 'cheerio'
-import Request from 'request'
+import request from 'request'
 
 import { ACTION, GET, REQ } from '../constants/action-types'
 import IDBController from '../utils/indexeddb'
 import LocalStorageController from '../utils/localstorage'
+import Utils from '../utils/utils'
 
 const IDB = new IDBController();
 const appLocalStorage = new LocalStorageController('app');
 
+// リファクタリングはあとで…
 export const Router = (location, details) => ({ type: ACTION.ROUTER, location, details });
 export const NicoAccountChange = account => ({ type: ACTION.NICOACCOUNT.CHANGE, account });
 export const NicoAccountDelete = account => ({ type: ACTION.NICOACCOUNT.DELETE, account });
@@ -33,7 +35,7 @@ export function NiconicoLogin(req) {
       let profile = {};
 
       let [login, status] = await new Promise((resolve, reject) => {
-        Request.post({
+        request.post({
           url: 'https://account.nicovideo.jp/api/v1/login',
           qs: {
             site: 'nicobox_android'
@@ -66,6 +68,9 @@ export function NiconicoLogin(req) {
       // 詳細なプロフィールを取得
       if (status) profile = await getNiconicUserProfile(login);
 
+      // Cookie の書き込み
+      ipcRenderer.send('set-cookie', login);
+
       let account = Object.assign({}, profile, login, {
         status: status,
       });
@@ -93,7 +98,7 @@ function NiconicoApi(req) {
 
     let fetchRequest = Object.assign({}, defaultRequest, req.request);
 
-    Request(fetchRequest, (err, req, res) => {
+    request(fetchRequest, (err, req, res) => {
       console.info('NicoAPI', req);
       resolve(res);
     });
@@ -102,7 +107,7 @@ function NiconicoApi(req) {
 
 function getNiconicUserProfile(account) {
   return new Promise((resolve, reject) => {
-    Request({
+    request({
       method: 'get',
       uri: `${NICOAPIHOST}/user/profiles/${account.id}`,
       json: true,
@@ -287,13 +292,13 @@ export function niconicoSearch(req) {
 
     (async () => {
       let response = await new Promise(resolve => {
-        Request({
+        request({
           method: 'get',
           uri: `http://api.search.nicovideo.jp/api/v2/${req.service}/contents/search`,
           json: true,
           qs: req.query,
           headers: {
-            'User-Agent': 'NicoTunes dev'
+            'User-Agent': 'NicoTunes'
           }
         }, (err, req, res) => {
           console.info('Search', req);
@@ -313,7 +318,7 @@ export function niconicoSuggest(query) {
   return dispatch => {
     (async () => {
       let response = await new Promise(resolve => {
-        Request({
+        request({
           method: 'get',
           uri: `http://sug.search.nicovideo.jp/suggestion/complete/${encodeURIComponent(query)}`,
           json: true,
@@ -339,7 +344,8 @@ export function PlayMusic(req) {
     });
 
     (async () => {
-      var video = req.video;
+      var video = req.video,
+          musicDBApi = null;
 
       let watchApi = await NiconicoApi({
         account: req.account,
@@ -351,23 +357,62 @@ export function PlayMusic(req) {
         }
       });
 
-      let audioApi = JSON.parse(await NiconicoApi({
-        account: req.account,
-        request: {
-          uri: watchApi.watchApiUrl,
-          json: false,
+      let [audioApi, nicoHistory] = await new Promise(resolve => {
+        request({
+          method: 'get',
+          url: watchApi.watchApiUrl,
           headers: {
-            'Cookie': `user_session=${req.account.session_key}`
+            cookie: `user_session=${req.account.session_key}`
           }
-        }
-      }));
+        }, (err, req, res) => {
+
+          let nicoHistory;
+
+          for (let sc = 0; sc < req.headers['set-cookie'].length; sc++) {
+            let cookies = req.headers['set-cookie'][sc].split('; ');
+
+            for (let i = 0; i < cookies.length; i++) {
+              let cookie = cookies[i].split('=');
+
+              if (cookie[0] === 'nicohistory') {
+                nicoHistory = cookie[1];
+              }
+            }
+          }
+
+          resolve([
+            JSON.parse(res),
+            nicoHistory
+          ]);
+        });
+      });
+
+      if (video.tags == undefined || video.tags.some(tag => tag.name === 'VOCALOID')) {
+        musicDBApi = await new Promise((resolve, reject) => {
+          request({
+            method: 'get',
+            uri: 'http://vocadb.net/api/songs/byPv',
+            json: true,
+            qs: {
+              pvService: 'NicoNicoDouga',
+              pvId: video.id,
+              fields: 'Albums,Artists,Lyrics,Pvs',
+              lang: 'Japanese'
+            }
+          }, (err, req, res) => {
+            if (req.statusCode === 200) {
+              resolve(res);
+            }
+          });
+        });
+      }
 
       if (req.mode) {
         for (let mode of req.mode) {
           switch (mode) {
             case 'chorus': {
               await new Promise((resolve, reject) => {
-                Request({
+                request({
                   method: 'get',
                   uri: 'https://widget.songle.jp/api/v1/song/chorus.json',
                   qs: {
@@ -431,12 +476,18 @@ export function PlayMusic(req) {
 
       await IDB.add('tunes', nextTune);
 
+      ipcRenderer.send('setViewAuthToken', {
+        history: nicoHistory
+      });
+
       dispatch({
         type: GET.NICO.API.PLAY,
         data: {
           video,
           queue: req.videos || [ video ],
-          audioUrl: audioApi.data.audio_url
+          audioUrl: audioApi.data.audio_url,
+          getFlvUrl: watchApi.getflvUrl,
+          info: musicDBApi
         }
       });
     })();
@@ -468,7 +519,7 @@ export function NiconicoAccount() {
         if (defaultAccount.code) {
           switch (defaultAccount.code) {
             case 'BUSY':
-              await new Promise(resolve => setTimeout(() => resolve(), 1000));
+              await new Promise(resolve => setTimeout(() => resolve(), 5000));
               NiconicoAccount();
               return;
           }
@@ -476,6 +527,10 @@ export function NiconicoAccount() {
           console.error(defaultAccount.code);
         } else {
           status = true;
+
+          ipcRenderer.send('setViewAuthToken', {
+            session: defaultAccount.session_key
+          });
         }
       }
 
