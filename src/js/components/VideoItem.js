@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames'
-import Utils from '../utils/utils'
-import PlayAnimation from '../containers/play-animation'
+import Utils from '../utils/Utils'
+import PlayAnimation from '../containers/PlayAnimation'
 
 export default class VideoItem extends Component {
   render() {

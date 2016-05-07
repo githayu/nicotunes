@@ -2,13 +2,12 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { RaisedButton } from 'material-ui'
-
-import * as Actions from '../actions/app'
+import * as Actions from '../actions/App'
 
 export default class Login extends Component {
   render() {
     return (
-      <form className="login-container" onSubmit={this.login.bind(this)}>
+      <form className="login-container" onSubmit={::this.login}>
         <p className="login-form-message">niconico アカウント情報を入力してください</p>
 
         <div className="login-form-inner">
@@ -25,9 +24,7 @@ export default class Login extends Component {
           <RaisedButton
             label="ログイン"
             type="submit"
-            primary={true}
             fullWidth={true}
-            backgroundColor="#0277BD"
             className="login-submit"/>
         </div>
       </form>
@@ -37,7 +34,7 @@ export default class Login extends Component {
   login(e) {
     e.preventDefault();
 
-    this.props.NiconicoLogin({
+    this.props.niconicoLogin({
       mail_tel: this.refs.mail_tel.value.trim(),
       password: this.refs.password.value.trim()
     });

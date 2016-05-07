@@ -1,13 +1,12 @@
 import Remote, { Menu } from 'remote'
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { IconButton } from 'material-ui'
 import classNames from 'classnames'
 import electron, { ipcRenderer } from 'electron'
-
-import * as Actions from '../actions/app'
-import Utils from '../utils/utils'
+import * as Actions from '../actions/App'
+import Utils from '../utils/Utils'
 import LocalStorageController from '../utils/LocalStorageController'
 import CreateContextMeun from '../utils/ContextMenu'
 
@@ -25,16 +24,24 @@ export default class Player extends Component {
       seeking: false
     });
 
-    this.props.play.audio.addEventListener('timeupdate', this.timeUpdate.bind(this), false);
-    this.props.play.audio.addEventListener('play', this.props.playState.bind(this, { ended: false, paused: false }), false);
-    this.props.play.audio.addEventListener('pause', this.props.playState.bind(this, { paused: true }), false);
-    this.props.play.audio.addEventListener('ended', this.playEnded.bind(this), false);
+    this.props.play.audio.addEventListener('timeupdate', ::this.timeUpdate, false);
+
+    this.props.play.audio.addEventListener('play', this.props.stateChanger.bind(this, 'play', {
+      ended: false,
+      paused: false
+    }), false);
+
+    this.props.play.audio.addEventListener('pause', this.props.stateChanger.bind(this, 'play', {
+      paused: true
+    }), false);
+
+    this.props.play.audio.addEventListener('ended', ::this.playEnded, false);
 
     ipcRenderer.on('mainWindowDropItem', (e, id) => {
-      this.props.PlayMusic({
+      this.props.playMusic({
         account: this.props.accounts.niconico.selected,
         video: { id },
-        mode: ['fetch']
+        mode: ['video']
       });
     });
   }
@@ -69,13 +76,13 @@ export default class Player extends Component {
           'music-player': true,
           'active': this.props.play.active
         })}
-        onContextMenu={this.contextMeun.bind(this)}>
+        onContextMenu={::this.contextMeun}>
 
         <div className="player-content">
           <div className="player-control">
             <div className="player-controller">
               <IconButton
-                onClick={this.onRepeat.bind(this)}
+                onClick={::this.onRepeat}
                 className="repeat-button"
                 iconClassName={classNames({
                   icon: true,
@@ -89,7 +96,7 @@ export default class Player extends Component {
                 iconClassName="icon" />
 
               <IconButton
-                onClick={this.playMusic.bind(this)}
+                onClick={::this.playMusic}
                 className="play-pause-button"
                 iconClassName={classNames({
                   icon: true,
@@ -119,18 +126,20 @@ export default class Player extends Component {
                 <div className="player-volume-slider-container">
                   <input
                     type="range"
-                    onChange={this.volumeChange.bind(this)}
+                    onChange={::this.volumeChange}
                     defaultValue={this.props.play.audio.volume * 100}
                     className="player-volume-slider"
                     ref="playerVolumeSlider"
                     style={{
-                      backgroundImage: `-webkit-linear-gradient(left, #0288d1 ${volume}%, #ddd ${volume}%)`
+                      backgroundImage: `-webkit-linear-gradient(left, ${this.context.muiTheme.palette.accent1Color} ${volume}%, #ddd ${volume}%)`
                     }} />
                 </div>
               </div>
 
               <IconButton
-                onClick={this.props.QueueState.bind(this, { active: !this.props.queue.active })}
+                onClick={this.props.stateChanger.bind(this, 'queue', {
+                  active: !this.props.queue.active
+                })}
                 className="queue-button"
                 iconClassName={classNames({
                   icon: true,
@@ -152,7 +161,7 @@ export default class Player extends Component {
         <div
           className="player-progress"
           ref="playerProgress"
-          onMouseDown={this.progressMouseDown.bind(this)}>
+          onMouseDown={::this.progressMouseDown}>
 
           <div
             className="player-play-progress"
@@ -200,13 +209,16 @@ export default class Player extends Component {
 
     // キューリピート無効の場合は終了
     if (this.state.repeat == 0 && index >= this.props.queue.items.length) {
-      return this.props.playState({ active: false, video: null });
+      return this.props.stateChanger('play', {
+        active: false,
+        video: null
+      });
     }
 
     let nextIndex = (index <= 0) ? this.props.queue.items.length :
                     (index >= this.props.queue.items.length) ? 0 : index;
 
-    this.props.PlayMusic({
+    this.props.playMusic({
       account: this.props.accounts.niconico.selected,
       video: this.props.queue.items[nextIndex],
       videos: []
@@ -248,7 +260,7 @@ export default class Player extends Component {
     let menu = new CreateContextMeun(this, [
       {
         label: this.props.play.paused ? '再生' : '停止',
-        click: this.playMusic.bind(this)
+        click: ::this.playMusic
       },
       'separator',
       {
@@ -291,6 +303,10 @@ export default class Player extends Component {
     }
   }
 }
+
+Player.contextTypes = {
+  muiTheme: PropTypes.object.isRequired,
+};
 
 Player.defaultProps = {
   repeat: [

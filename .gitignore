@@ -3,4 +3,5 @@ dist/
 app/*
 !app/package.json
 src/css/*
+pages/
 *.log

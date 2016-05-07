@@ -1,42 +1,5 @@
-.app-control {
-  display: flex;
-  padding: 15px 0;
-  list-style: none;
-  justify-content: center;
-  margin: 0 auto;
-
-  &:hover > li {
-    &.close:before { content: '\f136' }
-    &.minimize:before { content: '\f273' }
-    &.maximize:before { content: '\f278' }
-  }
-
-  > li {
-    + li {
-      margin-left: 6px;
-    }
-
-    &:before {
-      width: 12px;
-      height: 12px;
-      display: block;
-      border-radius: 6px;
-      content: '';
-      font-family: icon;
-      font-size: 10px;
-      line-height: 12px;
-      text-align: center;
-      color: rgba(0,0,0,.6);
-    }
-
-    &.close:before { background-color: #e53935; }
-    &.minimize:before { background-color: #FFB300; }
-    &.maximize:before { background-color: #7CB342; }
-  }
-}
-
 .navigation {
-  background-color: rgba($mainColor, .95);
+  background-color: rgba($mainColor, .9);
   flex: 0 0 80px;
 
   &:before {

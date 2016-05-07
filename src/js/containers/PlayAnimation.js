@@ -2,8 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
-
-import * as Actions from '../actions/app'
+import * as Actions from '../actions/App'
 
 export default class PlayAnimation extends Component {
   render() {

@@ -4,9 +4,8 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { FloatingActionButton } from 'material-ui'
-
-import * as Actions from '../actions/app'
-import VideoItem from '../components/video-item'
+import * as Actions from '../actions/App'
+import VideoItem from '../components/VideoItem'
 import CreateContextMeun from '../utils/ContextMenu'
 
 export default class MyList extends Component {
@@ -32,12 +31,10 @@ export default class MyList extends Component {
 
             <div className="mylist-play-button">
               <FloatingActionButton
-                backgroundColor="#0288d1"
                 iconClassName="icon"
                 onClick={
                   this.play.bind(this, this.props.mylist.selected.myListEntries.items[0].video)
-                } >
-              </FloatingActionButton>
+                } />
             </div>
           </header>
 
@@ -45,7 +42,7 @@ export default class MyList extends Component {
             <select
               className="mylist-sort"
               defaultValue={this.props.mylist.selected.sortType.code}
-              onChange={this.sortOrderChange.bind(this)} >
+              onChange={::this.sortOrderChange} >
               {
                 this.props.sortOrder.map(o => {
                   return <option key={o.code} label={o.label} value={o.code} />
@@ -74,7 +71,7 @@ export default class MyList extends Component {
   }
 
   play(video) {
-    this.props.PlayMusic({
+    this.props.playMusic({
       account: this.props.accounts.niconico.selected,
       video,
       videos: this.props.mylist.selected.myListEntries.items.map(video => video.video)

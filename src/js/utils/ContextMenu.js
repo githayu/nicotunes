@@ -40,12 +40,12 @@ export default class CreateContextMeun {
 
   play() {
     if (this.validate([
-      'props.PlayMusic',
+      'props.playMusic',
       'props.accounts.niconico.selected',
       'item'
     ])) return {
       label: '再生',
-      click: this.props.PlayMusic.bind(this, {
+      click: this.props.playMusic.bind(this, {
         type: 'mylist',
         account: this.props.accounts.niconico.selected,
         video: this.item
@@ -55,12 +55,12 @@ export default class CreateContextMeun {
 
   playChorus() {
     if (this.validate([
-      'props.PlayMusic',
+      'props.playMusic',
       'props.accounts.niconico.selected',
       'item'
     ])) return {
       label: 'サビから再生',
-      click: this.props.PlayMusic.bind(this, {
+      click: this.props.playMusic.bind(this, {
         type: 'mylist',
         account: this.props.accounts.niconico.selected,
         video: this.item,
@@ -76,7 +76,11 @@ export default class CreateContextMeun {
       'item.id'
     ])) return {
       label: '次に再生',
-      click: this.props.QueueAdd.bind(this, this.item, this.props.play.video.id)
+      click: this.props.queueController.bind(this, {
+        type: 'add',
+        item: this.item,
+        id: this.props.play.video.id
+      })
     }
   }
 
@@ -86,7 +90,10 @@ export default class CreateContextMeun {
       'item'
     ])) return {
       label: '再生キューに追加',
-      click: this.props.QueueAdd.bind(this, this.item)
+      click: this.props.queueController.bind(this, {
+        type: 'add',
+        item: this.item
+      })
     }
   }
 
@@ -96,7 +103,10 @@ export default class CreateContextMeun {
       'item.id'
     ])) return {
       label: '再生キューから削除',
-      click: this.props.QueueDelete.bind(this, this.item.id)
+      click: this.props.queueController.bind(this, {
+        type: 'delete',
+        id: this.item.id
+      })
     }
   }
 

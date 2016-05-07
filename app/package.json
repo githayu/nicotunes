@@ -1,7 +1,7 @@
 {
   "name": "NicoTunes",
   "description": "Niconico Music Player",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Hayu <admin@nanoway.net>",
   "main": "./js/main.js",
   "homepage": "https://nanoway.net/nicotunes",

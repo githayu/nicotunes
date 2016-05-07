@@ -3,8 +3,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Tabs, Tab, RaisedButton } from 'material-ui'
-
-import * as Actions from '../actions/app'
+import * as Actions from '../actions/App'
 
 export default class Settings extends Component {
   constructor() {
@@ -27,7 +26,6 @@ export default class Settings extends Component {
       <div className="settings-container">
         <Tabs
           tabItemContainerStyle={{
-            backgroundColor: '#fff',
             borderBottom: '1px rgba(0,0,0,.15) solid',
             position: 'relative',
             zIndex: 1
@@ -35,14 +33,12 @@ export default class Settings extends Component {
           inkBarStyle={{
             height: '3px',
             marginTop: '-3px',
-            backgroundColor: '#0288D1',
             zIndex: 2
           }} >
 
           <Tab
             label="アカウント"
-            value="account"
-            style={{ color: '#333' }}>
+            value="account">
 
             <table className="nico-accounts">
               <caption>アカウント設定</caption>
@@ -67,12 +63,13 @@ export default class Settings extends Component {
 
                       <td><img className="account-icon" src={u.thumbnailUrl} alt={u.nickname} /></td>
                       <td>{u.nickname}</td>
-                      <td><input type="radio"
-                                 className="active-niconico-account"
-                                 defaultValue={u.id}
-                                 name="active-niconico-account"
-                                 defaultChecked={active}
-                                 ref={`activeNicoAccountRadio-${u.id}`} /></td>
+                      <td><input
+                            type="radio"
+                            className="active-niconico-account"
+                            defaultValue={u.id}
+                            name="active-niconico-account"
+                            defaultChecked={active}
+                            ref={`activeNicoAccountRadio-${u.id}`} /></td>
                     </tr>
                   );
                 })
@@ -83,8 +80,6 @@ export default class Settings extends Component {
             <RaisedButton
               onClick={this.props.Router.bind(this, 'login')}
               label="アカウントを追加"
-              primary={true}
-              backgroundColor="#0277BD"
               className="add-niconico-account"
               style={{
                 width: '50%',
@@ -99,12 +94,21 @@ export default class Settings extends Component {
 
   activeNicoAccountRadio(account) {
     this.refs[`activeNicoAccountRadio-${account.id}`].checked = true;
-    this.props.NicoAccountChange(account);
+    this.props.nicoAccountController({
+      type: 'change',
+      account
+    });
   }
 
   nicoAccountContextMenu(account) {
     let menu = [
-      { label: `${account.nickname} (${account.id}) を削除`, click: this.nicoAccountDelete.bind(this, account) }
+      {
+        label: `${account.nickname} (${account.id}) を削除`,
+        click: this.props.nicoAccountController.bind(this, {
+          type: 'delete',
+          account
+        })
+      }
     ];
 
     Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
@@ -112,7 +116,10 @@ export default class Settings extends Component {
 
   nicoAccountDelete(account) {
     if (this.props.accounts.niconico.selected.id != account.id) {
-      this.props.NicoAccountDelete(account);
+      this.props.nicoAccountController({
+        type: 'delete',
+        account
+      });
     } else {
       Dialog.showMessageBox({
         type: 'info',

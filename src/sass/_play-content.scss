@@ -3,6 +3,8 @@
   background-color: #fff;
   display: flex;
   flex-direction: column;
+  box-shadow: -1px 0 0 #ddd;
+  position: relative;
 
   .play-header {
     display: none;
@@ -16,11 +18,8 @@
 .play-info {
   position: relative;
   overflow: hidden;
-  padding: 20px;
-  display: flex;
   flex: 0 0;
   background: no-repeat center/cover;
-  cursor: pointer;
 
   &:before {
     content: '';
@@ -34,32 +33,38 @@
     display: flex;
   }
 
-  &:hover {
-    .play-thumbnail {
-      &:before {
-        content: '\f3aa';
-        font-family: icon;
-        display: block;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 50px;
-        height: 50px;
-        transform: translate(-50%,-50%);
-        color: #fff;
-        background-color: $mainColor;
-        border-radius: 100%;
-        text-align: center;
-        text-indent: 5px;
-        font-size: 2.5rem;
-        line-height: 50px;
-        z-index: 5;
-        box-shadow: 0 1px 5px rgba(0,0,0,.7);
-      }
-    }
+  .play-info-inner {
+    cursor: pointer;
+    display: flex;
+    margin: 20px;
+    box-shadow: 0 1px 10px rgba(0,0,0,.2);
 
-    .play-title {
-      color: $mainColor;
+    &:hover {
+      .play-thumbnail {
+        &:before {
+          content: '\f3aa';
+          font-family: icon;
+          display: block;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 50px;
+          height: 50px;
+          transform: translate(-50%,-50%);
+          color: #fff;
+          background-color: $mainColor;
+          border-radius: 100%;
+          text-align: center;
+          text-indent: 5px;
+          font-size: 2.5rem;
+          line-height: 50px;
+          z-index: 5;
+        }
+      }
+
+      .play-title {
+        color: $mainColor;
+      }
     }
   }
 

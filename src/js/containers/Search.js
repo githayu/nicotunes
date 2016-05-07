@@ -12,12 +12,12 @@ import {
   Popover,
   Tabs,
   Tab,
-  Checkbox,
+  Checkbox as MuiCheckbox,
   CircularProgress
 } from 'material-ui'
 
-import * as Actions from '../actions/app'
-import VideoItem from '../components/video-item'
+import * as Actions from '../actions/App'
+import VideoItem from '../components/VideoItem'
 import CreateContextMeun from '../utils/ContextMenu'
 
 export default class Search extends Component {
@@ -32,8 +32,12 @@ export default class Search extends Component {
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    // console.log(prevState, this.state);
+  componentWillUpdate(prevProps, prevState) {
+    if (JSON.stringify(prevProps.search.items) !== JSON.stringify(this.props.search.items)) {
+      this.setState({
+        suggest: false
+      });
+    }
   }
 
   render() {
@@ -49,18 +53,18 @@ export default class Search extends Component {
                   placeholder="検索"
                   list="suggest"
                   value={this.state.query.q}
-                  onKeyUp={this.queryKeyUp.bind(this)}
-                  onChange={this.suggest.bind(this)}
-                  onFocus={this.queryFocus.bind(this)}
-                  onBlur={this.queryBlur.bind(this)} />
+                  onKeyUp={::this.queryKeyUp}
+                  onChange={::this.suggest}
+                  onFocus={::this.queryFocus}
+                  onBlur={::this.queryBlur} />
 
                 <ul
                   className={classNames({
                     'suggest-list': true,
                     'active': this.state.suggest
                   })}
-                  onMouseEnter={this.suggestMouseEnter.bind(this)}
-                  onMouseLeave={this.suggestMouseLeave.bind(this)}>
+                  onMouseEnter={::this.suggestMouseEnter}
+                  onMouseLeave={::this.suggestMouseLeave}>
                   {
                     this.props.search.suggest.map((candidates, index) => {
                       return (
@@ -78,7 +82,7 @@ export default class Search extends Component {
 
               <FlatButton
                 className="search-submit-button"
-                onClick={this.search.bind(this)}
+                onClick={::this.search}
                 children={<span className="icon" />}
                 style={{
                   minWidth: 'auto',
@@ -115,7 +119,7 @@ export default class Search extends Component {
                   desktop={true}
                   className="search-sort-select"
                   value={this.state.query._sort}
-                  onChange={this.sortOrderChange.bind(this)} >
+                  onChange={::this.sortOrderChange} >
                   {
                     this.props.sortOrder.map(e => {
                       return (
@@ -134,7 +138,7 @@ export default class Search extends Component {
                 iconClassName="icon"
                 tooltip="詳細検索"
                 tooltipPosition="bottom-center"
-                onClick={this.advanced.bind(this)}
+                onClick={::this.advanced}
                 style={{
                   padding: 0,
                   width: 'auto',
@@ -149,7 +153,6 @@ export default class Search extends Component {
               })}
               contentContainerClassName="search-form-tabs-container"
               tabItemContainerStyle={{
-                backgroundColor: '#fff',
                 borderBottom: '1px rgba(0,0,0,.15) solid',
                 position: 'relative',
                 zIndex: 1
@@ -157,23 +160,20 @@ export default class Search extends Component {
               inkBarStyle={{
                 height: '3px',
                 marginTop: '-3px',
-                backgroundColor: '#0288D1',
                 zIndex: 2
               }} >
 
-              <Tab
-                label="検索対象"
-                style={{ color: '#333' }} >
+              <Tab label="検索対象" >
 
                 <fieldset
                   className="search-targets">
                   {
                     this.props.targets.map(target => {
                       return (
-                        <Checkbox
+                        <MuiCheckbox
                           key={target.value}
                           label={target.label}
-                          value={target.value}
+                          detaultValue={target.value}
                           defaultChecked={this.state.query.targets.includes(target.value)}
                           onCheck={this.targetsChange.bind(this, target.value)} />
                       );
@@ -193,9 +193,9 @@ export default class Search extends Component {
                           key="gte"
                           type={field.type}
                           data-field-name={field.name}
-                          onChange={this.filtersChange.bind(this)}
+                          onChange={::this.filtersChange}
                           className="gte"
-                          placeholder="最小"/>
+                          placeholder="最小" />
                       ),
 
                       lte = (
@@ -203,9 +203,9 @@ export default class Search extends Component {
                           key="lte"
                           type={field.type}
                           data-field-name={field.name}
-                          onChange={this.filtersChange.bind(this)}
+                          onChange={::this.filtersChange}
                           className="lte"
-                          placeholder="最大"/>
+                          placeholder="最大" />
                       ),
 
                       inputForm = (field.type == 'datetime-local') ? ([
@@ -246,12 +246,12 @@ export default class Search extends Component {
                       let checked = (Array.isArray(this.state.query.filters.categoryTags) && this.state.query.filters.categoryTags.indexOf(e.value) !== -1);
 
                       return (
-                        <Checkbox
+                        <MuiCheckbox
                           key={e.value}
                           label={e.value}
-                          value={e.value}
+                          defaultValue={e.value}
                           defaultChecked={checked}
-                          onCheck={this.categoryTagsChange.bind(this)} />
+                          onCheck={::this.categoryTagsChange} />
                       );
                     })
                   }
@@ -266,7 +266,7 @@ export default class Search extends Component {
         </main>
 
         <div className="loading-progress">
-          <CircularProgress color="#0288d1" />
+          <CircularProgress />
         </div>
       </div>
     );
@@ -278,11 +278,11 @@ export default class Search extends Component {
     return this.props.search.items.map(video => {
       return (
         <VideoItem
-          onClick={this.props.PlayMusic.bind(this, {
+          onClick={this.props.playMusic.bind(this, {
             account: this.props.accounts.niconico.selected,
             video,
             videos: this.props.search.items,
-            mode: ['fetch']
+            mode: ['video']
           })}
           onContextMenu={this.contextMeun.bind(this, video)}
           video={video}
@@ -451,7 +451,9 @@ export default class Search extends Component {
     if (query.length) {
       this.props.niconicoSuggest(query);
     } else {
-      this.props.searchState({ suggest: [] });
+      this.props.stateChanger('search', {
+        suggest: []
+      });
     }
   }
 

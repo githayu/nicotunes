@@ -1,6 +1,9 @@
-import { ACTION, GET, REQ } from '../constants/action-types'
+import { ACTION, GET, REQ } from '../constants'
+import IndexedDBController from '../utils/IndexedDBController'
 import LocalStorageController from '../utils/LocalStorageController'
+import electron, { ipcRenderer } from 'electron'
 
+const IDB = new IndexedDBController()
 const appLocalStorage = new LocalStorageController('app');
 const initialState = {
   niconico: {
@@ -44,6 +47,10 @@ export default function accounts(state = initialState, action) {
         activeNicoAccountId: action.account.id
       });
 
+      ipcRenderer.send('setAccessToken', {
+        session: action.account.session_key
+      });
+
       return Object.assign({}, state, {
         niconico: Object.assign({}, state.niconico, {
           selected: action.account
@@ -53,19 +60,21 @@ export default function accounts(state = initialState, action) {
 
     // ニコニコアカウント削除
     case ACTION.NICOACCOUNT.DELETE: {
-      IDB.delete('nicoAccounts', action.id);
+      IDB.delete('nicoAccounts', action.account.id);
 
-      let accounts = state.niconico;
+      let accounts = state.niconico.items.concat();
 
-      for (let i = 0; i < state.niconico.length; i++) {
-        if (state.niconico[i].id == action.id) {
+      for (let i = 0; i < state.niconico.items.length; i++) {
+        if (state.niconico.items[i].id == action.account.id) {
           accounts.splice(i, 1);
           break;
         }
       }
 
       return Object.assign({}, state, {
-        niconico: accounts
+        niconico: Object.assign({}, state.niconico, {
+          items: accounts
+        })
       });
     }
 

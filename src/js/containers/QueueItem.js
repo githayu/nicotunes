@@ -4,10 +4,8 @@ import { DragDropContext, DropTarget, DragSource } from 'react-dnd'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
-
-import * as Actions from '../actions/app'
-import Utils from '../utils/utils'
-import PlayAnimation from './play-animation'
+import Utils from '../utils/Utils'
+import PlayAnimation from './PlayAnimation'
 
 const Types = {
   ITEM: 'item'
@@ -34,7 +32,11 @@ const itemTarget = {
     const draggedId = monitor.getItem().id;
 
     if (draggedId !== props.video.id) {
-      props.sortAction(draggedId, props.video.id);
+      props.sortAction({
+        type: 'move',
+        sourceId: draggedId,
+        targetId: props.video.id
+      });
     }
   },
 

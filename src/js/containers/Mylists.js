@@ -2,8 +2,7 @@ import Remote, { Menu } from 'remote'
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-
-import * as Actions from '../actions/app'
+import * as Actions from '../actions/App'
 import CreateContextMeun from '../utils/ContextMenu'
 
 export default class MyLists extends Component {

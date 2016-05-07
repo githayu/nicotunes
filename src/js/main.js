@@ -26,7 +26,6 @@ app.on('ready', function() {
     minWidth: 500,
     minHeight: 600,
     transparent: true,
-    useContentSize: true,
     titleBarStyle: 'hidden'
   });
 
@@ -76,6 +75,7 @@ ipcMain.on('mainWindowResize', (e, size) => {
   }
 
   mainWindow.setContentSize(width, height);
+  mainWindow.setMinimumSize(width, height);
 });
 
 
@@ -85,8 +85,7 @@ function createVideoWindow(e, id) {
   videoWindow = new BrowserWindow({
     width: 1000,
     height: 433,
-    minWidth: 1000,
-    minHeight: 433,
+    resizable: false,
     useContentSize: true
   });
 
@@ -104,14 +103,16 @@ function createVideoWindow(e, id) {
     videoWindow.webContents.session.webRequest.onBeforeSendHeaders({
       urls: [
         'http://*.nicovideo.jp/smile*',
-        'http://flapi.nicovideo.jp/api/*'
+        'http://flapi.nicovideo.jp/api/*',
+        'http://www.nicovideo.jp/api/mylist/add',
+        'http://www.nicovideo.jp/mylist_add/video/*'
       ]
     }, (details, callback) => {
 
-      if (details.url.includes('flapi')) {
-        details.requestHeaders.cookie = `user_session=${accessToken.session}`;
-      } else {
+      if (details.url.includes('smile')) {
         details.requestHeaders.cookie = `nicohistory=${accessToken.history}`;
+      } else {
+        details.requestHeaders.cookie = `user_session=${accessToken.session}`;
       }
 
       callback({
@@ -121,7 +122,9 @@ function createVideoWindow(e, id) {
     });
   });
 
-  ipcMain.on('videoWindowResize', (e, size) => videoWindow.setContentSize(size.w, size.h));
+  ipcMain.on('videoWindowResize', (e, size) => {
+    videoWindow.setContentSize(size.w, size.h);
+  });
 }
 
 

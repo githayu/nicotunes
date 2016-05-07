@@ -1,52 +1,64 @@
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { CircularProgress } from 'material-ui'
-
-import * as Actions from '../actions/app'
-
-import Login from './login'
-import MyList from './mylist'
-import MyLists from './mylists'
-import Ranking from './ranking'
-import Search from './search'
-import Settings from './settings'
-
-import PlayContent from '../containers/play-content'
-import Navigation from '../containers/navigation'
-import Player from './player'
-import Queue from './queue'
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import BaseTheme from '../utils/BaseTheme'
+import * as Actions from '../actions/App'
+import Login from './Login'
+import MyList from './Mylist'
+import MyLists from './Mylists'
+import Ranking from './Ranking'
+import Search from './Search'
+import Settings from './Settings'
+import PlayContent from '../containers/PlayContent'
+import Navigation from '../containers/Navigation'
+import Player from './Player'
+import Queue from './Queue'
 
 export default class Root extends Component {
+  getChildContext() {
+    return {
+      muiTheme: getMuiTheme(BaseTheme)
+    }
+  }
+
   componentWillMount() {
-    this.props.NiconicoAccount();
+    this.props.niconicoAccount();
   }
 
   render() {
     if (this.props.app.location == 'initialize') {
       return (
-        <div id="nico-tunes" ref="app">
+        <div id="nicotunes" className="initialize">
           <Navigation />
 
           <div className="loading-progress">
-            <CircularProgress color="#0288d1" />
+            <CircularProgress />
           </div>
         </div>
       );
     }
 
-    let signature = {
+    var signature = {
       [this.props.app.location]: true,
-      loading: this.props.app.loading
-    };
+      loading: this.props.app.loading,
+      playing: this.props.play.active
+    },
+
+    renderTitleBar = [];
+
+    if (process.platform !== 'win32') {
+      renderTitleBar = <header className="title-bar">NicoTunes</header>
+    }
 
     return (
-      <div id="nico-tunes" className={classNames(signature)}>
+      <div id="nicotunes" className={classNames(signature)}>
         <Navigation />
 
         <div className="main-wrapper">
-          <header className="title-bar">NicoTunes</header>
+          { renderTitleBar }
 
           <div className="content-container">
             <div className="content">
@@ -55,11 +67,11 @@ export default class Root extends Component {
               <Player />
               <Queue />
               <div className="loading-progress">
-                <CircularProgress color="#0288d1" />
+                <CircularProgress />
               </div>
             </div>
 
-            { this.props.play.active ? <PlayContent /> : '' }
+            { this.props.play.active ? <PlayContent /> : [] }
 
           </div>
         </div>
@@ -77,6 +89,10 @@ export default class Root extends Component {
         default: return <Login />;
     }
   }
+}
+
+Root.childContextTypes = {
+  muiTheme: PropTypes.object.isRequired
 }
 
 export default connect(

@@ -1,5 +1,7 @@
 # NicoTunes
 
+![NicoTunes](https://nanoway.net/img/nicotunes/screenshot.png)
+
 NicoTunes は、ニコニコ動画の音楽再生に特化したデスクトップ向け音楽プレイヤーです。  
 ※まだ開発段階なので、動かないところがあったり動作も不安定です。
 
