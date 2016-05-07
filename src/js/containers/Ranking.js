@@ -4,10 +4,9 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { Tabs, Tab, CircularProgress } from 'material-ui'
-
-import * as Actions from '../actions/app'
-import Utils from '../utils/utils'
-import VideoItem from '../components/video-item'
+import * as Actions from '../actions/App'
+import Utils from '../utils/Utils'
+import VideoItem from '../components/VideoItem'
 import CreateContextMeun from '../utils/ContextMenu'
 
 export default class Ranking extends Component {
@@ -67,7 +66,6 @@ export default class Ranking extends Component {
         ref="spanTab"
         value={this.props.ranking.span}
         tabItemContainerStyle={{
-          backgroundColor: '#fff',
           borderBottom: '1px rgba(0,0,0,.15) solid',
           position: 'relative',
           zIndex: 1
@@ -75,7 +73,6 @@ export default class Ranking extends Component {
         inkBarStyle={{
           height: '3px',
           marginTop: '-3px',
-          backgroundColor: '#0288D1',
           zIndex: 2
         }}>
         {
@@ -84,10 +81,7 @@ export default class Ranking extends Component {
               <Tab
                 label={span.label}
                 key={span.value}
-                value={span.value}
-                style={{
-                  color: '#333'
-                }} />
+                value={span.value} />
             );
           })
         }
@@ -113,7 +107,7 @@ export default class Ranking extends Component {
         </div>
 
         <div className="loading-progress">
-          <CircularProgress color="#0288d1" />
+          <CircularProgress />
         </div>
       </div>
     );
@@ -137,11 +131,11 @@ export default class Ranking extends Component {
 
             return (
               <VideoItem
-                onClick={this.props.PlayMusic.bind(this, {
+                onClick={this.props.playMusic.bind(this, {
                   account: this.props.accounts.niconico.selected,
                   video: video,
                   videos: this.props.ranking.items,
-                  mode: ['fetch']
+                  mode: ['video']
                 })}
                 onContextMenu={this.contextMeun.bind(this, video)}
                 video={video}
@@ -175,11 +169,11 @@ export default class Ranking extends Component {
 
             return (
               <VideoItem
-                onClick={this.props.PlayMusic.bind(this, {
+                onClick={this.props.playMusic.bind(this, {
                   account: this.props.accounts.niconico.selected,
                   video,
                   videos: this.props.ranking.items,
-                  mode: ['fetch']
+                  mode: ['video']
                 })}
                 onContextMenu={this.contextMeun.bind(this, video)}
                 video={video}
@@ -199,7 +193,7 @@ export default class Ranking extends Component {
           this.props.ranking.items.map((item, i) => {
             return (
               <VideoItem
-                onClick={this.props.PlayMusic.bind(this, {
+                onClick={this.props.playMusic.bind(this, {
                   account: this.props.accounts.niconico.selected,
                   video: item.video,
                   videos: this.props.ranking.items.map(i => i.video)

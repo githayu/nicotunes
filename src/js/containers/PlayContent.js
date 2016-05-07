@@ -4,27 +4,26 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Tabs, Tab } from 'material-ui'
 import classNames from 'classnames'
-
-import Utils from '../utils/utils'
-import * as Actions from '../actions/app'
+import Utils from '../utils/Utils'
+import * as Actions from '../actions/App'
 import LocalStorageController from '../utils/LocalStorageController'
 import CreateContextMeun from '../utils/ContextMenu'
 
 export default class PlayContent extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      selectedTab: 'details'
-    };
-  }
-
-  componentWillMount() {
     ipcRenderer.send('mainWindowResize', 'playing');
   }
 
   componentWillUnmount() {
     ipcRenderer.send('mainWindowResize', 'default');
+  }
+
+  componentWillUpdate(prevProps) {
+    if ((!this.props.play.vocaDB || !this.props.play.vocaDB.lyrics.length) &&
+        (prevProps.play.selectedTab === 'lyrics' && this.props.play.selectedTab === 'lyrics')) {
+      this.slideChanger('details');
+    }
   }
 
   render() {
@@ -33,10 +32,9 @@ export default class PlayContent extends Component {
         { this.playHeadRender() }
 
         <Tabs
-          onChange={::this.slideChange}
+          onChange={::this.slideChanger}
           className="play-tabs"
           tabItemContainerStyle={{
-            backgroundColor: '#fff',
             borderBottom: '1px rgba(0,0,0,.15) solid',
             position: 'relative',
             zIndex: 1
@@ -44,7 +42,6 @@ export default class PlayContent extends Component {
           inkBarStyle={{
             height: '3px',
             marginTop: '-3px',
-            backgroundColor: '#0288D1',
             zIndex: 2
           }} >
 
@@ -52,26 +49,21 @@ export default class PlayContent extends Component {
             let slides = [];
 
             for (let i = 0, slide; slide = this.props.slides[i]; i++) {
-
-              // 歌詞未登録 or ボーカロイド曲 でない場合
-              if (slide.value == 'lyrics' && (!this.props.play.info || !this.props.play.info.lyrics.length)) {
-                this.slideChange.bind(this, 'details');
-                continue;
-              }
+              if (slide.value == 'lyrics' && (!this.props.play.vocaDB || !this.props.play.vocaDB.lyrics.length)) continue;
 
               slides.push(
                 <Tab
                   key={slide.value}
                   label={slide.label}
-                  value={slide.value}
-                  style={{ color: '#333' }} />
+                  value={slide.value} />
               );
             }
+
             return slides;
           })()}
         </Tabs>
 
-        {(() => this.props.play.info ? this.vocaloidInfoRender() : this.videoInfoRender())()}
+        {(() => this.props.play.vocaDB ? this.vocaloidInfoRender() : this.videoInfoRender())()}
       </div>
     );
   }
@@ -83,32 +75,35 @@ export default class PlayContent extends Component {
         renderTitle,
         renderArtistName;
 
-    if (!this.props.play.info) {
+    if (!this.props.play.vocaDB) {
       renderTitle = this.props.play.video.title;
       renderArtistName = Utils.UrlParamDecoder(decodeURIComponent(this.props.play.audioUrl)).artist;
     } else {
-      renderTitle = this.props.play.info.defaultName;
-      renderArtistName = this.props.play.info.artistString;
+      renderTitle = this.props.play.vocaDB.defaultName;
+      renderArtistName = this.props.play.vocaDB.artistString;
     }
 
     return (
       <div
         className={classNames({
-          'play-header': true,
           'play-info': true,
-          'active': this.state.selectedTab !== 'views'
+          'active': this.props.play.selectedTab !== 'views'
         })}
-        onClick={::this.playVideo} style={{
-        backgroundImage: `url(${renderThumbnailUrl})`
-      }}>
-        <figure
-          className="play-thumbnail"
-          style={{
-            backgroundImage: `url(${renderThumbnailUrl})`
-          }} />
-        <div className="play-meta">
-          <h1 className="play-title">{ renderTitle }</h1>
-          <p className="play-artist-name">{ renderArtistName }</p>
+        onClick={::this.playVideo}
+        style={{
+          backgroundImage: `url(${renderThumbnailUrl})`
+        }}>
+        <div className="play-info-inner">
+          <figure
+            className="play-thumbnail"
+            style={{
+              backgroundImage: `url(${renderThumbnailUrl})`
+            }} />
+
+          <div className="play-meta">
+            <h1 className="play-title">{ renderTitle }</h1>
+            <p className="play-artist-name">{ renderArtistName }</p>
+          </div>
         </div>
       </div>
     );
@@ -119,7 +114,7 @@ export default class PlayContent extends Component {
       <div className="play-tab-content">
         <div className={classNames({
           'play-details': true,
-          'selected': this.state.selectedTab === 'details'
+          'selected': this.props.play.selectedTab === 'details'
         })}>
           <table className="play-details-table">
             <tbody>
@@ -139,58 +134,73 @@ export default class PlayContent extends Component {
   }
 
   vocaloidInfoRender() {
-    // 歌詞を見やすくする
-    if (this.props.play.info.lyrics.length) {
-      let lyricsInfo = this.props.play.info.lyrics.filter(lyrics => lyrics.language === 'Japanese')[0];
+    var renderAlbum = [],
+        renderLyrics = [];
 
-      var renderLyrics = lyricsInfo.value.split(/(\r?\n){2,}/g).map((section, i) => {
-        return (
-          <div key={`lyrics-section-${i}`}>{section.split(/\r?\n/g).map((line, i) => {
-            return (
-              <p key={`lyrics-line-${i}`}>{line}</p>
-            )
-          })}</div>
-        )
-      });
+    // 歌詞があれば
+    if (this.props.play.vocaDB.lyrics.length) {
+      let lyricsInfo = this.props.play.vocaDB.lyrics.filter(lyrics => lyrics.language === 'Japanese')[0];
+
+      renderLyrics = (
+        <div
+          className={classNames({
+            'play-lyrics': true,
+            'selected': this.props.play.selectedTab === 'lyrics'
+          })}>
+          {
+            lyricsInfo.value.split(/(\r?\n){2,}/g).map((section, i) => {
+              return (
+                <div key={`lyrics-section-${i}`}>{section.split(/\r?\n/g).map((line, i) => {
+                  return (
+                    <p key={`lyrics-line-${i}`}>{line}</p>
+                  )
+                })}</div>
+              )
+            })
+          }
+        </div>
+      )
     }
 
     // アルバムがあれば。
-    let albums = this.props.play.info.albums.length ? [
+    if (this.props.play.vocaDB.albums.length) {
+      renderAlbum = (
       <tr key="albums">
         <th>アルバム</th>
         <td>
           <ul className="play-detail-table-list">
-          {
-            this.props.play.info.albums.map((album, i) => {
-              return (
-                <li
-                  className="link"
-                  onClick={this.onAlbumClick.bind(this, album.id)}
-                  key={`album-${i}`}>{album.name}</li>
-              )
-            })
-          }
+            {
+              this.props.play.vocaDB.albums.map((album, i) => {
+                return (
+                  <li
+                    className="link"
+                    onClick={this.onAlbumClick.bind(this, album.id)}
+                    key={`album-${i}`}>{album.name}</li>
+                )
+              })
+            }
           </ul>
         </td>
       </tr>
-    ] : [];
+      )
+    }
 
     return (
       <div className="play-tab-content">
         <div className={classNames({
           'play-details': true,
-          'selected': this.state.selectedTab === 'details'
+          'selected': this.props.play.selectedTab === 'details'
         })}>
           <table className="play-details-table">
             <tbody>
               <tr>
                 <th>タイトル</th>
-                <td>{ this.props.play.info.defaultName }</td>
+                <td>{ this.props.play.vocaDB.defaultName }</td>
               </tr>
 
               {
                 this.props.detailTable.map((artistType, i) => {
-                  let artists = this.props.play.info.artists.filter(artist => {
+                  let artists = this.props.play.vocaDB.artists.filter(artist => {
                     return artist.categories === Utils.CapitalizeFirstLetter(artistType.value)
                   });
 
@@ -226,22 +236,20 @@ export default class PlayContent extends Component {
 
               <tr>
                 <th>楽曲タイプ</th>
-                <td>{ this.props.play.info.songType }</td>
+                <td>{ this.props.play.vocaDB.songType }</td>
               </tr>
               <tr>
                 <th>投稿日時</th>
                 <td>{ Utils.FormatDateString(this.props.play.video.firstRetrieve) }</td>
               </tr>
 
-              { albums }
+              { renderAlbum }
             </tbody>
           </table>
         </div>
 
-        <div className={classNames({
-          'play-lyrics': true,
-          'selected': this.state.selectedTab === 'lyrics'
-        })}>{ renderLyrics }</div>
+        { renderLyrics }
+
       </div>
     );
   }
@@ -251,8 +259,8 @@ export default class PlayContent extends Component {
     ipcRenderer.send('videoWindow', this.props.play.video.id);
   }
 
-  slideChange(value) {
-    this.setState({ selectedTab: value });
+  slideChanger(value) {
+    this.props.stateChanger('play', { selectedTab: value });
   }
 
   onArtistClick(id) {

@@ -3,9 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { IconButton } from 'material-ui'
-
-import * as Actions from '../actions/app'
-import AppControl from '../components/app-control'
+import * as Actions from '../actions/App'
 
 export default class Navigation extends Component {
   render() {

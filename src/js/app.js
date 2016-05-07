@@ -6,7 +6,8 @@ import thunkMiddleware from 'redux-thunk'
 import createLogger from 'redux-logger'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import electron, { ipcRenderer } from 'electron'
-
+import { getMuiTheme, MuiThemeProvider } from 'material-ui/styles'
+import BaseTheme from '../js/utils/BaseTheme'
 import * as reducers from '../js/reducers'
 import { Root } from '../js/containers'
 
@@ -25,14 +26,13 @@ const finalCreateStore = compose(
 )(createStore)
 
 const store = finalCreateStore(reducer)
+const nicoTunesTheme = getMuiTheme(BaseTheme)
 
 ReactDOM.render(
   <Provider store={store}>
-    <Root />
+    <MuiThemeProvider muiTheme={nicoTunesTheme}>
+      <Root />
+    </MuiThemeProvider>
   </Provider>,
   document.getElementById('app')
 );
-
-ipcRenderer.on('debug', args => {
-  console.log('debugLog:', args);
-});

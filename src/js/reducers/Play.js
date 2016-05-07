@@ -1,13 +1,14 @@
-import { ACTION, GET, REQ } from '../constants/action-types'
+import { ACTION, GET, REQ } from '../constants'
 
 const initialState = {
   video: null,
   paused: true,
   active: false,
   audioUrl: null,
-  info: null,
+  vocaDB: null,
   loading: false,
-  audio: new Audio()
+  audio: new Audio(),
+  selectedTab: 'details'
 };
 
 export default function play(state = initialState, action) {
@@ -17,11 +18,8 @@ export default function play(state = initialState, action) {
     case GET.NICO.API.PLAY: {
       return Object.assign({}, state, {
         audioUrl: action.data.audioUrl,
-        getFlvUrl: action.data.getFlvUrl,
-        getFlv: null,
-        type: 'audio',
         video: action.data.video,
-        info: action.data.info,
+        vocaDB: action.data.vocaDB,
         paused: false,
         active: true,
         loading: false

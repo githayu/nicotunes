@@ -6,10 +6,9 @@ import { IconButton } from 'material-ui'
 import { DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import classNames from 'classnames'
-
-import QueueItem from './queue-item'
-import * as Actions from '../actions/app'
-import Utils from '../utils/utils'
+import QueueItem from './QueueItem'
+import * as Actions from '../actions/App'
+import Utils from '../utils/Utils'
 import CreateContextMeun from '../utils/ContextMenu'
 
 @DragDropContext(HTML5Backend)
@@ -58,13 +57,18 @@ export default class Queue extends Component {
 
               <div className="queue-action">
                 <IconButton
-                  onClick={this.props.QueueShuffle}
+                  onClick={this.props.queueController.bind(this, {
+                    type: 'shuffle'
+                  })}
                   tooltip="シャッフル"
                   tooltipPosition="bottom-center"
                   iconClassName="queue-shuffle" />
 
                 <IconButton
-                  onClick={this.props.QueueClear.bind(this, this.props.play.video)}
+                  onClick={this.props.queueController.bind(this, {
+                    type: 'clear',
+                    item: this.props.play.video
+                  })}
                   tooltip="消去"
                   tooltipPosition="bottom-left"
                   iconClassName="queue-clear" />
@@ -95,9 +99,9 @@ export default class Queue extends Component {
             video={video}
             active={this.props.play.active && video.id == this.props.play.video.id}
             key={video.id}
-            sortAction={this.props.QueueMove.bind(this)}
-            dragAction={this.dragAction.bind(this)}
-            onClick={this.props.PlayMusic.bind(this, {
+            sortAction={::this.props.queueController}
+            dragAction={::this.dragAction}
+            onClick={this.props.playMusic.bind(this, {
               account: this.props.accounts.niconico.selected,
               video: video,
               videos: []

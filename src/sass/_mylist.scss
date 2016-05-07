@@ -34,7 +34,8 @@
   position: fixed;
   top: 0;
   left: 80px;
-  width: 410px;
+  right: 10px;
+  min-width: 410px;
 
   > div {
     width: 178px;
@@ -42,6 +43,12 @@
     background-repeat: no-repeat;
     background-position: 0;
     background-size: cover;
+  }
+}
+
+#nicotunes.playing {
+  .mylist-introduction {
+    right: 410px;
   }
 }
 

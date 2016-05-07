@@ -1,6 +1,0 @@
-export Root from './root'
-export Login from './login'
-export MyList from './mylist'
-export MyLists from './mylists'
-export Ranking from './ranking'
-export Settings from './settings'

@@ -31,6 +31,7 @@ $(async () => {
 
   if (getflv.done == 'true') {
     P.classList.add('login');
+    P.querySelector('.player-comment-input').value = '(⋈･◡･)つ　まだコメントできません';
     P.dataset.src = decodeURIComponent(getflv.url);
     Player.state.setting.comment_font = "'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro', YuGothic, 'Yu Gothic', 游ゴシック, Meiryo, メイリオ, Helvetica, sans-serif"
   }
