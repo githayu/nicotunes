@@ -3,7 +3,7 @@ import {
   lightBlue500,
   white,
   darkBlack
-} from 'material-ui/styles/colors'
+} from 'material-ui/styles/colors';
 
 export default {
   palette: {
@@ -15,4 +15,4 @@ export default {
     textColor: darkBlack,
     selectedTextColor: darkBlack
   }
-}
+};

@@ -1,9 +1,8 @@
-import app from 'app'
-import electron, { Menu, crashReporter, ipcMain, BrowserWindow } from 'electron'
-import request from 'request'
-import electronSquirrelSetup from 'electron-squirrel-startup'
-import UpdateChecker from './utils/UpdateChecker'
-import { mainMenu } from './mainMenu'
+import app from 'app';
+import { Menu, ipcMain, BrowserWindow } from 'electron';
+import electronSquirrelSetup from 'electron-squirrel-startup';
+import UpdateChecker from './utils/UpdateChecker';
+import { mainMenu } from './mainMenu';
 
 if (electronSquirrelSetup || handleSquirrelEvent()) app.quit();
 
@@ -142,11 +141,13 @@ function handleSquirrelEvent() {
   const exeName = path.basename(process.execPath);
 
   const spawn = function(command, args) {
-    let spawnedProcess, error;
+    let spawnedProcess;
 
     try {
       spawnedProcess = ChildProcess.spawn(command, args, {detached: true});
-    } catch (error) {}
+    } catch (error) {
+
+    }
 
     return spawnedProcess;
   };

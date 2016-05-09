@@ -75,5 +75,5 @@ export const APIHOSTS = {
     server2: 'https://server2.nicobox.org'
   },
 
-  vocadb: 'http://vocadb.net',
-}
+  vocadb: 'http://vocadb.net'
+};

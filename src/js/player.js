@@ -1,4 +1,4 @@
-import electron, { ipcRenderer } from 'electron'
+import { ipcRenderer } from 'electron';
 
 $(async () => {
   var formData = new FormData();

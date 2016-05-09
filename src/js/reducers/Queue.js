@@ -1,4 +1,4 @@
-import { ACTION, GET, REQ } from '../constants'
+import { ACTION, GET } from '../constants';
 
 const initialState = {
   items: [],

@@ -1,19 +1,71 @@
-import Remote, { Menu } from 'remote'
-import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import classNames from 'classnames'
-import { FloatingActionButton } from 'material-ui'
-import * as Actions from '../actions/App'
-import VideoItem from '../components/VideoItem'
-import CreateContextMeun from '../utils/ContextMenu'
+import Remote, { Menu } from 'remote';
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { FloatingActionButton } from 'material-ui';
+import * as Actions from '../actions/App';
+import VideoItem from '../components/VideoItem';
+import CreateContextMeun from '../utils/ContextMenu';
 
 export default class MyList extends Component {
+  contextMeun(video) {
+    let menu = new CreateContextMeun(this, [
+      'play',
+      'playChorus',
+      'nextPlay',
+      'queueAdd',
+      'separator',
+      'videoDetail',
+      'separator',
+      'niconico',
+      'nicofinder'
+    ], video);
+
+    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+  }
+
+  introductionCreator() {
+    let result = [];
+
+    for (let i = 0; i < 9; i++) {
+      let video = this.props.mylist.selected.myListEntries.items[i],
+          thumbnailUrl = video.video.thumbnailLargeUrl ? video.video.thumbnailLargeUrl : video.video.thumbnailUrl;
+
+      result.push(
+        <div key={video.id}
+          style={{ backgroundImage: `url(${thumbnailUrl})` }}
+        />
+      );
+    }
+
+    return result;
+  }
+
+  play(video) {
+    this.props.playMusic({
+      account: this.props.accounts.niconico.selected,
+      video,
+      videos: this.props.mylist.selected.myListEntries.items.map(video => video.video)
+    });
+  }
+
+  sortOrderChange(e) {
+    this.props.getMylistVideos({
+      account: this.props.accounts.niconico.selected,
+      request: {
+        id: this.props.mylist.selected.id,
+        query: {
+          sortOrderTypeCode: e.target.value
+        }
+      }
+    });
+  }
+
   render() {
     if (!this.props.mylist.selected) {
-      return <div className="mylist-container" />
+      return <div className="mylist-container" />;
     } else if (!this.props.mylist.selected.myListEntries.items.length) {
-      return <div className="mylist-container">動画がありません</div>
+      return <div className="mylist-container">{'動画がありません'}</div>;
     }
 
     return (
@@ -34,7 +86,8 @@ export default class MyList extends Component {
                 iconClassName="icon"
                 onClick={
                   this.play.bind(this, this.props.mylist.selected.myListEntries.items[0].video)
-                } />
+                }
+              />
             </div>
           </header>
 
@@ -42,84 +95,42 @@ export default class MyList extends Component {
             <select
               className="mylist-sort"
               defaultValue={this.props.mylist.selected.sortType.code}
-              onChange={::this.sortOrderChange} >
-              {
-                this.props.sortOrder.map(o => {
-                  return <option key={o.code} label={o.label} value={o.code} />
-                })
-              }
-            </select>
-          </div>
-
-          <ul className="video-list" ref="videoList">
+              onChange={::this.sortOrderChange}
+            >
             {
-              this.props.mylist.selected.myListEntries.items.map(video => {
+              this.props.sortOrder.map(o => {
                 return (
-                  <VideoItem
-                    onClick={this.play.bind(this, video.video)}
-                    onContextMenu={this.contextMeun.bind(this, video.video)}
-                    video={video.video}
-                    active={this.props.play.active && video.video.id == this.props.play.video.id}
-                    key={video.video.id} />
+                  <option
+                    key={o.code}
+                    label={o.label}
+                    value={o.code}
+                  />
                 );
               })
             }
+            </select>
+          </div>
+
+          <ul className="video-list"
+            ref="videoList"
+          >
+          {
+            this.props.mylist.selected.myListEntries.items.map(video => {
+              return (
+                <VideoItem
+                  onClick={this.play.bind(this, video.video)}
+                  onContextMenu={this.contextMeun.bind(this, video.video)}
+                  video={video.video}
+                  active={this.props.play.active && video.video.id == this.props.play.video.id}
+                  key={video.video.id}
+                />
+              );
+            })
+          }
           </ul>
         </div>
       </div>
     );
-  }
-
-  play(video) {
-    this.props.playMusic({
-      account: this.props.accounts.niconico.selected,
-      video,
-      videos: this.props.mylist.selected.myListEntries.items.map(video => video.video)
-    });
-  }
-
-  introductionCreator() {
-    let result = [];
-
-    for (let i = 0; i < 9; i++) {
-      let video = this.props.mylist.selected.myListEntries.items[i],
-          thumbnailUrl = video.video.thumbnailLargeUrl ? video.video.thumbnailLargeUrl : video.video.thumbnailUrl;
-
-      result.push(
-        <div key={video.id}
-             style={{ backgroundImage: `url(${thumbnailUrl})` }} />
-      );
-    }
-
-    return result;
-  }
-
-  contextMeun(video) {
-    let menu = new CreateContextMeun(this, [
-      'play',
-      'playChorus',
-      'nextPlay',
-      'queueAdd',
-      'separator',
-      'videoDetail',
-      'separator',
-      'niconico',
-      'nicofinder'
-    ], video);
-
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
-  }
-
-  sortOrderChange(e) {
-    this.props.getMylistVideos({
-      account: this.props.accounts.niconico.selected,
-      request: {
-        id: this.props.mylist.selected.id,
-        query: {
-          sortOrderTypeCode: e.target.value
-        }
-      }
-    });
   }
 }
 
@@ -144,7 +155,7 @@ MyList.defaultProps = {
     { label: '再生時間が長い順', code: 16 },
     { label: '再生時間が短い順', code: 17 }
   ]
-}
+};
 
 export default connect(
   state => ({

@@ -48,23 +48,23 @@ export default class IndexedDBController {
             }
           }
         }
-      }
+      };
 
       this.dbReq.onsuccess = e => {
         this.db = e.target.result;
         resolve(this);
-      }
+      };
 
       this.dbReq.onerror = e => {
         console.error(e);
         reject();
-      }
+      };
     });
   }
 
   add(storeName, values, mode = 'readwrite') {
     return new Promise((resolve, reject) => {
-      this.connect().then(db => {
+      this.connect().then(() => {
         let transaction = this.db.transaction(storeName, mode),
             store = transaction.objectStore(storeName);
 
@@ -76,7 +76,7 @@ export default class IndexedDBController {
             request.onerror = e => {
               console.error(e);
               reject();
-            }
+            };
           }
 
           resolve();
@@ -84,18 +84,18 @@ export default class IndexedDBController {
 
         // 1件追加
         else {
-          let request = store.put(values)
+          let request = store.put(values);
 
           console.log(request);
 
           request.onsuccess = e => {
             resolve(e.type);
-          }
+          };
 
           request.onerror = e => {
             console.error(e);
             reject();
-          }
+          };
         }
       });
     });
@@ -103,7 +103,7 @@ export default class IndexedDBController {
 
   get(storeName, req = {}, mode = 'readonly') {
     return new Promise((resolve, reject) => {
-      this.connect().then(db => {
+      this.connect().then(() => {
         let transaction = this.db.transaction(storeName, mode),
             store = transaction.objectStore(storeName),
             request;
@@ -114,12 +114,12 @@ export default class IndexedDBController {
 
           request.onsuccess = e => {
             resolve(e.target.result);
-          }
+          };
 
           request.onerror = e => {
             console.error(e);
             reject();
-          }
+          };
         }
 
         // 複数件取得
@@ -156,12 +156,12 @@ export default class IndexedDBController {
             } else {
               resolve(result);
             }
-          }
+          };
 
           request.onerror = e => {
             console.error(e);
             reject();
-          }
+          };
         }
       });
     });
@@ -169,20 +169,20 @@ export default class IndexedDBController {
 
   delete(storeName, key, mode = 'readwrite') {
     return new Promise((resolve, reject) => {
-      this.connect().then(db => {
+      this.connect().then(() => {
         var transaction = this.db.transaction(storeName, mode),
             store = transaction.objectStore(storeName),
             request = store.delete(key);
 
         request.onsuccess = e => {
           resolve(e.target.result);
-        }
+        };
 
         request.onerror = e => {
           console.error(e);
           reject();
-        }
-      })
+        };
+      });
     });
   }
 }

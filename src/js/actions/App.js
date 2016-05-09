@@ -1,14 +1,13 @@
-import electron, { ipcRenderer } from 'electron'
-import remote, { dialog, session } from 'remote'
-import cheerio from 'cheerio'
-import request from 'request'
-import { ACTION, GET, APIHOSTS } from '../constants'
-import IndexedDBController from '../utils/IndexedDBController'
-import LocalStorageController from '../utils/LocalStorageController'
-import Utils from '../utils/Utils'
+import { ipcRenderer } from 'electron';
+import { dialog } from 'remote';
+import cheerio from 'cheerio';
+import request from 'request';
+import { ACTION, GET, APIHOSTS } from '../constants';
+import IndexedDBController from '../utils/IndexedDBController';
+import LocalStorageController from '../utils/LocalStorageController';
 
-const IDB = new IndexedDBController()
-const appLocalStorage = new LocalStorageController('app')
+const IDB = new IndexedDBController();
+const appLocalStorage = new LocalStorageController('app');
 export const Router = (location, details) => ({ type: ACTION.ROUTER, location, details });
 
 export const nicoAccountController = options => {
@@ -19,7 +18,7 @@ export const nicoAccountController = options => {
   return Object.assign(defaultRequest, {
     account: options.account
   });
-}
+};
 
 export const queueController = options => {
   var defaultRequest = {
@@ -52,23 +51,24 @@ export const queueController = options => {
     default:
       return defaultRequest;
   }
-}
+};
 
 export const stateChanger = (storeName, state) => {
   return {
     type: ACTION[storeName.toUpperCase()].STATE,
     state
-  }
-}
+  };
+};
 
 export function niconicoLogin(query) {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({ type: ACTION.LOAD.START });
 
     (async () => {
       var profile = {},
+          login = {};
 
-      [login, status] = await fetchApi({
+      login = await fetchApi({
         agent: 'nicobox',
         request: {
           method: 'post',
@@ -83,51 +83,52 @@ export function niconicoLogin(query) {
       .then(res => {
         var $ = cheerio.load(res.body);
 
-        return ($('nicovideo_user_response').attr('status') == 'ok') ? [{
+        return ($('nicovideo_user_response').attr('status') == 'ok') ? {
+          status: true,
           session_key: $('session_key').text(),
           expire: $('expire').text(),
           id: +$('user_id').text()
-        }, true] : [{
+        } : {
+          status: false,
           code: +$('code').text(),
           description: $('description').text()
-        }, false];
+        };
       });
 
-      // IndexedDB 追加
-      if (status) await IDB.add('nicoAccounts', login);
+      if (login.status) {
+        // IndexedDB 追加
+        await IDB.add('nicoAccounts', login);
 
-      // アクティブアカウント変更
-      if (status) appLocalStorage.update({ activeNicoAccountId: login.id });
+        // アクティブアカウント変更
+        appLocalStorage.update({ activeNicoAccountId: login.id });
 
-      // 詳細なプロフィールを取得
-      if (status) profile = await fetchApi({
-        agent: 'nicobox',
-        sessionType: 'sp',
-        account: login,
-        request: {
-          url: `${APIHOSTS.niconico.gadget}/user/profiles/${login.id}`
-        }
-      });
+        // 詳細なプロフィールを取得
+        profile = await fetchApi({
+          agent: 'nicobox',
+          sessionType: 'sp',
+          account: login,
+          request: {
+            url: `${APIHOSTS.niconico.gadget}/user/profiles/${login.id}`
+          }
+        });
 
-      ipcRenderer.send('setAccessToken', {
-        session: login.session_key
-      });
+        ipcRenderer.send('setAccessToken', {
+          session: login.session_key
+        });
+      }
 
       dispatch({
         type: GET.NICO.LOGIN,
-        account: Object.assign({}, profile.body, login, { status })
+        account: Object.assign({}, profile.body, login)
       });
     })();
-  }
+  };
 }
 
 function fetchApi(options) {
-  return new Promise((resolve, reject) => {
-    var fetchRequest = {
-      json: true
-    },
-
-    fetchHeaders = options.request.headers || {};
+  return new Promise(resolve => {
+    var fetchRequest = { json: true },
+        fetchHeaders = options.request.headers || {};
 
     switch (options.agent) {
       case 'nicotunes':
@@ -160,8 +161,7 @@ export function mylistsLookup(account, reload = false) {
     dispatch({ type: ACTION.LOAD.START });
 
     (async () => {
-      var mylists,
-          mylistsDetail = [];
+      var mylists;
 
       mylists = await IDB.get('myLists', {
         method: 'index',
@@ -228,7 +228,7 @@ export function mylistsLookup(account, reload = false) {
         userId: account.id
       });
     })();
-  }
+  };
 }
 
 export function getMylistVideos(options) {
@@ -256,7 +256,7 @@ export function getMylistVideos(options) {
         mylist: mylist.body
       });
     })();
-  }
+  };
 }
 
 export function getRanking(options) {
@@ -265,24 +265,26 @@ export function getRanking(options) {
 
     var fetchRequest = (() => {
       switch (options.category) {
-        case 'nicobox': return {
+        case 'nicobox':
+          return {
             request: {
-            url: `${APIHOSTS.nicobox.server2}/v2/get/trends`,
-            qs: {
-              count: 'more'
+              url: `${APIHOSTS.nicobox.server2}/v2/get/trends`,
+              qs: {
+                count: 'more'
+              }
             }
-          }
-        }
+          };
 
-        case 'surema': return {
-          request: {
-            url: `${APIHOSTS.niconico.ce}/api/v1/step.video.ranking`,
-            qs: {
-              __format: 'json',
-              type: 'daily'
+        case 'surema':
+          return {
+            request: {
+              url: `${APIHOSTS.niconico.ce}/api/v1/step.video.ranking`,
+              qs: {
+                __format: 'json',
+                type: 'daily'
+              }
             }
-          }
-        }
+          };
 
         default: return {
           agent: 'nicobox',
@@ -293,7 +295,7 @@ export function getRanking(options) {
               span: options.span
             }
           }
-        }
+        };
       }
     })();
 
@@ -325,7 +327,7 @@ export function getRanking(options) {
         type: GET.NICO.API.RANKING
       }));
     })();
-  }
+  };
 }
 
 export function niconicoSearch(req) {
@@ -351,9 +353,9 @@ export function niconicoSearch(req) {
       dispatch({
         type: GET.NICO.API.SEARCH,
         data: response.body
-      })
+      });
     })();
-  }
+  };
 }
 
 export function niconicoSuggest(query) {
@@ -370,7 +372,7 @@ export function niconicoSuggest(query) {
         data: response.body.candidates || []
       });
     })();
-  }
+  };
 }
 
 export function playMusic(options) {
@@ -485,21 +487,23 @@ export function playMusic(options) {
 
       for (let i = 0, res; res = responseData[i]; i++) {
         switch (res.nameTag) {
-          case 'videoApi':
+          case 'videoApi': {
             if (res.statusCode !== 200) continue;
             options.video = res.body;
             break;
+          }
 
-          case 'vocaDBApi':
+          case 'vocaDBApi': {
             if (res.statusCode !== 200) continue;
             vocaDBData = res.body;
             break;
+          }
 
-          case 'songleApi':
+          case 'songleApi': {
             const statusMessage = {
               404: '楽曲情報が登録されていません。通常再生に移行します。',
               500: 'Songle API に接続できません。通常再生に移行します。'
-            }
+            };
 
             if (res.statusCode !== 200) {
               if (!statusMessage[res.statusCode]) continue;
@@ -516,17 +520,22 @@ export function playMusic(options) {
             }
 
             break;
+          }
         }
       }
 
       // 履歴の更新
-      var defaultTune = {
+      var defaultTune,
+          prevTune,
+          nextTune;
+
+      defaultTune = {
         id: options.video.id,
         last: Date.parse(new Date()),
         count: 1
-      },
+      };
 
-      prevTune = await IDB.get('tunes', options.video.id),
+      prevTune = await IDB.get('tunes', options.video.id);
 
       nextTune = prevTune ? Object.assign({}, prevTune, defaultTune, {
         count: prevTune.count + 1
@@ -544,7 +553,7 @@ export function playMusic(options) {
         }
       });
     })();
-  }
+  };
 }
 
 export function niconicoAccount() {
@@ -593,9 +602,9 @@ export function niconicoAccount() {
                   detail: `試行回数: ${accessCounter}回`
                 });
               } else {
-                await new Promise(resolve => setTimeout(() => {
+                await setTimeout(() => {
                   fetchAccounts();
-                }, 2000));
+                }, 2000);
               }
           }
         } else {
@@ -616,5 +625,5 @@ export function niconicoAccount() {
     }
 
     fetchAccounts();
-  }
+  };
 }

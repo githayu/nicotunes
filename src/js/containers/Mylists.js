@@ -1,9 +1,9 @@
-import Remote, { Menu } from 'remote'
-import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import * as Actions from '../actions/App'
-import CreateContextMeun from '../utils/ContextMenu'
+import Remote, { Menu } from 'remote';
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as Actions from '../actions/App';
+import CreateContextMeun from '../utils/ContextMenu';
 
 export default class MyLists extends Component {
   componentDidMount() {
@@ -12,46 +12,15 @@ export default class MyLists extends Component {
     }
   }
 
-  render() {
-    if (!this.props.mylist.items) {
-      return <div className="mylist-list-container" />
-    }
+  contextMenu() {
+    let menu = new CreateContextMeun(this, [
+      {
+        label: 'マイリスト更新',
+        click: this.props.mylistsLookup.bind(this, this.props.accounts.niconico.selected, true)
+      }
+    ]);
 
-    return (
-      <div
-        className="mylist-list-container"
-        onContextMenu={::this.contextMenu}>
-        <ul className="mylist-list">
-          {
-            this.props.mylist.items.map(mylist => {
-              if (typeof mylist.code != 'undefined' || !mylist.myListEntries.items.length) return;
-
-              return (
-                <li
-                  key={mylist.id}
-                  onClick={this.mylistLink.bind(this, mylist.id)}>
-
-                  <figure className="list-thumbnail">
-                    {
-                      mylist.myListEntries.items.map(item => {
-                        return <div key={item.videoId} style={{
-                          backgroundImage: `url(${item.thumbnailUrl})`
-                        }}/>
-                      })
-                    }
-                  </figure>
-
-                  <div className="list-info">
-                    <h2>{mylist.name}</h2>
-                    <p className="list-description">{mylist.description}</p>
-                  </div>
-                </li>
-              );
-            })
-          }
-        </ul>
-      </div>
-    );
+    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
   }
 
   mylistLink(id) {
@@ -71,22 +40,59 @@ export default class MyLists extends Component {
     }
   }
 
-  contextMenu() {
-    let menu = new CreateContextMeun(this, [
-      {
-        label: 'マイリスト更新',
-        click: this.props.mylistsLookup.bind(this, this.props.accounts.niconico.selected, true)
-      }
-    ]);
+  render() {
+    if (!this.props.mylist.items) {
+      return <div className="mylist-list-container" />;
+    }
 
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+    return (
+      <div
+        className="mylist-list-container"
+        onContextMenu={::this.contextMenu}
+      >
+        <ul className="mylist-list">
+          {
+            this.props.mylist.items.map(mylist => {
+              if (typeof mylist.code != 'undefined' || !mylist.myListEntries.items.length) return;
+
+              return (
+                <li
+                  key={mylist.id}
+                  onClick={this.mylistLink.bind(this, mylist.id)}
+                >
+                  <figure className="list-thumbnail">
+                    {
+                      mylist.myListEntries.items.map(item => {
+                        return (
+                          <div
+                            key={item.videoId}
+                            style={{
+                              backgroundImage: `url(${item.thumbnailUrl})`
+                            }}
+                          />
+                        );
+                      })
+                    }
+                  </figure>
+
+                  <div className="list-info">
+                    <h2>{mylist.name}</h2>
+                    <p className="list-description">{mylist.description}</p>
+                  </div>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </div>
+    );
   }
 }
 
 export default connect(
   state => ({
     mylist: state.mylist,
-    accounts: state.accounts,
+    accounts: state.accounts
   }),
   dispatch => bindActionCreators(Actions, dispatch)
 )(MyLists);

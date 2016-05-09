@@ -1,13 +1,12 @@
-import Remote, { Menu } from 'remote'
-import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import classNames from 'classnames'
-import { Tabs, Tab, CircularProgress } from 'material-ui'
-import * as Actions from '../actions/App'
-import Utils from '../utils/Utils'
-import VideoItem from '../components/VideoItem'
-import CreateContextMeun from '../utils/ContextMenu'
+import Remote, { Menu } from 'remote';
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import classNames from 'classnames';
+import { Tabs, Tab, CircularProgress } from 'material-ui';
+import * as Actions from '../actions/App';
+import VideoItem from '../components/VideoItem';
+import CreateContextMeun from '../utils/ContextMenu';
 
 export default class Ranking extends Component {
   componentDidMount() {
@@ -16,42 +15,69 @@ export default class Ranking extends Component {
     }
   }
 
+  categoryChange() {
+    this.props.getRanking({
+      category: this.refs.category.value,
+      span: this.props.ranking.span
+    });
+  }
+
+  contextMeun(video) {
+    let menu = new CreateContextMeun(this, [
+      'play',
+      'playChorus',
+      'nextPlay',
+      'queueAdd',
+      'separator',
+      'videoDetail',
+      'separator',
+      'niconico',
+      'nicofinder'
+    ], video);
+
+    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+  }
+
   headerCategoryRender() {
     return (
       <select
         className="ranking-category"
         value={this.props.ranking.category}
         ref="category"
-        onChange={::this.categoryChange}>
-        {
-          this.props.categories.map(category => {
-            if (category.sub) {
-              return (
-                <optgroup
-                  label={category.name}
-                  key={category.name}>
-                  {
-                    category.sub.map(sub => {
-                      return (
-                        <option
-                          label={sub.name}
-                          value={sub.value}
-                          key={sub.value} />
-                      )
-                    })
-                  }
-                </optgroup>
-              )
-            } else {
-              return (
-                <option
-                  label={category.name}
-                  value={category.value}
-                  key={category.value} />
-              )
-            }
-          })
-        }
+        onChange={::this.categoryChange}
+      >
+      {
+        this.props.categories.map(category => {
+          if (category.sub) {
+            return (
+              <optgroup
+                label={category.name}
+                key={category.name}
+              >
+              {
+                category.sub.map(sub => {
+                  return (
+                    <option
+                      label={sub.name}
+                      value={sub.value}
+                      key={sub.value}
+                    />
+                  );
+                })
+              }
+              </optgroup>
+            );
+          } else {
+            return (
+              <option
+                label={category.name}
+                value={category.value}
+                key={category.value}
+              />
+            );
+          }
+        })
+      }
       </select>
     );
   }
@@ -74,42 +100,20 @@ export default class Ranking extends Component {
           height: '3px',
           marginTop: '-3px',
           zIndex: 2
-        }}>
-        {
-          this.props.span.map(span => {
-            return (
-              <Tab
-                label={span.label}
-                key={span.value}
-                value={span.value} />
-            );
-          })
-        }
+        }}
+      >
+      {
+        this.props.span.map(span => {
+          return (
+            <Tab
+              label={span.label}
+              key={span.value}
+              value={span.value}
+            />
+          );
+        })
+      }
       </Tabs>
-    );
-  }
-
-  render() {
-    return (
-      <div className={classNames({
-        'ranking-container': true,
-        [this.props.ranking.category]: true,
-        'loading': this.props.ranking.loading,
-      })}>
-
-        <header className="ranking-header">
-          { this.headerCategoryRender() }
-          { this.headerSpanRender() }
-        </header>
-
-        <div className="ranking-content">
-          { this.rankingRender() }
-        </div>
-
-        <div className="loading-progress">
-          <CircularProgress />
-        </div>
-      </div>
     );
   }
 
@@ -143,7 +147,8 @@ export default class Ranking extends Component {
                 meta={false}
                 duration={false}
                 ranking={i+1}
-                key={video.id} />
+                key={video.id}
+              />
             );
           })
         }</ul>
@@ -179,7 +184,8 @@ export default class Ranking extends Component {
                 video={video}
                 active={this.props.play.active && video.id == this.props.play.video.id}
                 ranking={i+1}
-                key={video.id} />
+                key={video.id}
+              />
             );
           })
         }</ul>
@@ -202,20 +208,14 @@ export default class Ranking extends Component {
                 video={item.video}
                 ranking={i+1}
                 active={this.props.play.active && item.video.id == this.props.play.video.id}
-                key={item.video.id} />
+                key={item.video.id}
+              />
             );
           })
         }
         </ul>
       );
     }
-  }
-
-  categoryChange() {
-    this.props.getRanking({
-      category: this.refs.category.value,
-      span: this.props.ranking.span
-    });
   }
 
   spanChange(span) {
@@ -225,22 +225,29 @@ export default class Ranking extends Component {
     });
   }
 
-  contextMeun(video) {
-    let menu = new CreateContextMeun(this, [
-      'play',
-      'playChorus',
-      'nextPlay',
-      'queueAdd',
-      'separator',
-      'videoDetail',
-      'separator',
-      'niconico',
-      'nicofinder'
-    ], video);
-
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+  render() {
+    return (
+      <div
+        className={classNames({
+          'ranking-container': true,
+          [this.props.ranking.category]: true,
+          'loading': this.props.ranking.loading
+        })}
+      >
+        <header className="ranking-header">
+          { this.headerCategoryRender() }
+          { this.headerSpanRender() }
+        </header>
+        <div className="ranking-content">
+          { this.rankingRender() }
+        </div>
+        <div className="loading-progress">
+          <CircularProgress />
+        </div>
+      </div>
+    );
   }
-};
+}
 
 Ranking.defaultProps = {
   categories: [
@@ -263,7 +270,7 @@ Ranking.defaultProps = {
         { name: '演奏してみた', value: 'play' },
         { name: '踊ってみた', value: 'dance' },
         { name: 'VOCALOID', value: 'vocaloid' },
-        { name: 'ニコニコインディーズ', value: 'nicoindies' },
+        { name: 'ニコニコインディーズ', value: 'nicoindies' }
       ]
     }, {
       name: '生活・一般・スポ',
@@ -276,7 +283,7 @@ Ranking.defaultProps = {
         { name: 'スポーツ', value: 'sport' },
         { name: 'ニコニコ動画講座', value: 'lecture' },
         { name: '車載動画', value: 'drive' },
-        { name: '歴史', value: 'history' },
+        { name: '歴史', value: 'history' }
       ]
     }, {
       name: '政治',
@@ -309,12 +316,7 @@ Ranking.defaultProps = {
         { name: '日記', value: 'diary' },
         { name: 'その他', value: 'other' }
       ]
-    },
-
-    /* {
-      name: 'R-18',
-      value: 'r18'
-    } */
+    }
   ],
 
   span: [

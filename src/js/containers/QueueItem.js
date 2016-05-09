@@ -1,11 +1,8 @@
-import Remote, { Menu, shell as Shell } from 'remote'
-import React, { Component, PropTypes } from 'react'
-import { DragDropContext, DropTarget, DragSource } from 'react-dnd'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import classNames from 'classnames'
-import Utils from '../utils/Utils'
-import PlayAnimation from './PlayAnimation'
+import React, { Component } from 'react';
+import { DropTarget, DragSource } from 'react-dnd';
+import classNames from 'classnames';
+import Utils from '../utils/Utils';
+import PlayAnimation from './PlayAnimation';
 
 const Types = {
   ITEM: 'item'
@@ -22,13 +19,13 @@ const itemSource = {
     return monitor.getItem().id === props.video.id;
   },
 
-  endDrag(props, monitor) {
+  endDrag(props) {
     props.dragAction(false);
   }
 };
 
 const itemTarget = {
-  hover(props, monitor, component) {
+  hover(props, monitor) {
     const draggedId = monitor.getItem().id;
 
     if (draggedId !== props.video.id) {
@@ -40,14 +37,14 @@ const itemTarget = {
     }
   },
 
-  drop(props, monitor, component) {
+  drop(props) {
     const { id } = props.video;
     return { id };
   }
 };
 
 @DropTarget(
-  props => Types.ITEM,
+  Types.ITEM,
   itemTarget,
   (connect, monitor) => ({
     connectDropTarget: connect.dropTarget(),
@@ -59,7 +56,7 @@ const itemTarget = {
 )
 
 @DragSource(
-  props => Types.ITEM,
+  Types.ITEM,
   itemSource,
   (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
@@ -89,16 +86,15 @@ export default class QueueItem extends Component {
         className={classNames({
           active: active,
           dragging: this.props.isDragging
-        })}>
-
+        })}
+      >
         <figure
           className="queue-video-thumbnail"
-          style={{ backgroundImage: `url(${thumbnailUrl})` }} >{ playAnimation }</figure>
-
+          style={{ backgroundImage: `url(${thumbnailUrl})` }}
+        >{ playAnimation }</figure>
         <h2 className="queue-video-title">{ video.title }</h2>
-
         <time className="queue-video-duration">{ Utils.FormatSeconds(video.lengthInSeconds) }</time>
       </li>
     ));
   }
-};
+}

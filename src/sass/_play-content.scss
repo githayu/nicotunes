@@ -1,5 +1,6 @@
 .play-content {
   flex: 0 0 400px;
+  width: 400px;
   background-color: #fff;
   display: flex;
   flex-direction: column;
@@ -133,7 +134,7 @@
 
     th {
       text-align: left;
-      width: 120px;
+      min-width: 120px;
     }
 
 
