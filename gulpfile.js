@@ -1,7 +1,6 @@
 var gulp = require('gulp'),
     compass = require('gulp-compass'),
     plumber = require('gulp-plumber'),
-    rename = require('gulp-rename'),
     watch = require('gulp-watch'),
     please = require('gulp-pleeease'),
     changed = require('gulp-changed'),

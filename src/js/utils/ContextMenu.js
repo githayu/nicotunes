@@ -1,4 +1,4 @@
-import { shell } from 'remote'
+import { shell } from 'remote';
 
 export default class CreateContextMeun {
   constructor(component, order, item) {
@@ -35,7 +35,7 @@ export default class CreateContextMeun {
           return false;
         }
       });
-    })
+    });
   }
 
   play() {
@@ -50,7 +50,7 @@ export default class CreateContextMeun {
         account: this.props.accounts.niconico.selected,
         video: this.item
       })
-    }
+    };
   }
 
   playChorus() {
@@ -66,12 +66,12 @@ export default class CreateContextMeun {
         video: this.item,
         mode: ['chorus']
       })
-    }
+    };
   }
 
   nextPlay() {
     if (this.validate([
-      'props.QueueAdd',
+      'props.queueController',
       'props.play.video',
       'item.id'
     ])) return {
@@ -81,12 +81,12 @@ export default class CreateContextMeun {
         item: this.item,
         id: this.props.play.video.id
       })
-    }
+    };
   }
 
   queueAdd() {
     if (this.validate([
-      'props.QueueAdd',
+      'props.queueController',
       'item'
     ])) return {
       label: '再生キューに追加',
@@ -94,12 +94,12 @@ export default class CreateContextMeun {
         type: 'add',
         item: this.item
       })
-    }
+    };
   }
 
   queueDelete() {
     if (this.validate([
-      'props.QueueDelete',
+      'props.queueController',
       'item.id'
     ])) return {
       label: '再生キューから削除',
@@ -107,17 +107,17 @@ export default class CreateContextMeun {
         type: 'delete',
         id: this.item.id
       })
-    }
+    };
   }
 
   separator() {
-    return { type: 'separator' }
+    return { type: 'separator' };
   }
 
   videoDetail() {
     return {
       label: '詳細情報を見る'
-    }
+    };
   }
 
   niconico() {
@@ -137,7 +137,7 @@ export default class CreateContextMeun {
         { label: '投稿者の大百科を開く', click: shell.openExternal.bind(this, `http://dic.nicovideo.jp/u/${this.item.userId}`) },
         { label: '違反動画の通報をする', click: shell.openExternal.bind(this, `http://www.nicovideo.jp/allegation/${this.item.id}`) }
       ]
-    }
+    };
   }
 
   nicofinder() {
@@ -149,6 +149,6 @@ export default class CreateContextMeun {
         { label: '動画を見る', click: shell.openExternal.bind(this, `http://www.nicofinder.net/watch/${this.item.id}`) },
         { label: 'コメント解析を開く', click: shell.openExternal.bind(this, `http://www.nicofinder.net/comment/${this.item.id}`) }
       ]
-    }
+    };
   }
 }

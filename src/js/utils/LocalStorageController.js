@@ -6,7 +6,7 @@ export default class LocalStorageController {
         volume: 0.2,
         version: '0.0.1'
       }
-    }
+    };
   }
 
   constructor(name) {
@@ -18,7 +18,7 @@ export default class LocalStorageController {
   }
 
   initialize() {
-    localStorage.setItem(this.name, JSON.stringify(this.defaultStorage[this.name]))
+    localStorage.setItem(this.name, JSON.stringify(this.defaultStorage[this.name]));
   }
 
   update(req) {

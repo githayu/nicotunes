@@ -1,4 +1,4 @@
-import { ACTION, GET, REQ } from '../constants'
+import { ACTION, GET } from '../constants';
 
 const initialState = {
   items: [],
@@ -45,7 +45,7 @@ export default function search(state = initialState, action) {
           categoryTags: e.categoryTags,
           channelId: e.channelId,
           mainCommunityId: e.mainCommunityId
-        }
+        };
       });
 
       return Object.assign({}, state, {

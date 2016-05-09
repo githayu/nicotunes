@@ -1,6 +1,6 @@
-import app from 'app'
-import request from 'request'
-import electron, { dialog, shell } from 'electron'
+import app from 'app';
+import request from 'request';
+import { dialog, shell } from 'electron';
 
 export default class UpdateChecker {
   constructor(req) {
@@ -10,7 +10,7 @@ export default class UpdateChecker {
     this.req = {
       user: req.user,
       repos: req.repos
-    }
+    };
   }
 
   getLatestVersion() {
@@ -18,9 +18,9 @@ export default class UpdateChecker {
       url: `https://api.github.com/repos/${this.req.user}/${this.req.repos}/releases/latest`,
       json: true,
       headers: {
-        'User-Agent': `NicoTunes UpdateChecker`
+        'User-Agent': 'NicoTunes UpdateChecker'
       }
-    }
+    };
 
     return new Promise((resolve, reject) => {
       if (this.latest) resolve(this.latest);
@@ -46,7 +46,7 @@ export default class UpdateChecker {
         title: app.getName(),
         message: `最新バージョン ${this.latest} への更新が可能です。`,
         detail: latest.body
-      }
+      };
 
       dialog.showMessageBox(options, button => {
         if (button === 0) shell.openExternal(latest.html_url);

@@ -1,28 +1,31 @@
-import Remote, { Menu } from 'remote'
-import React, { Component, PropTypes } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { IconButton } from 'material-ui'
-import classNames from 'classnames'
-import electron, { ipcRenderer } from 'electron'
-import * as Actions from '../actions/App'
-import Utils from '../utils/Utils'
-import LocalStorageController from '../utils/LocalStorageController'
-import CreateContextMeun from '../utils/ContextMenu'
+import Remote, { Menu } from 'remote';
+import React, { Component, PropTypes } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { IconButton } from 'material-ui';
+import classNames from 'classnames';
+import { ipcRenderer } from 'electron';
+import * as Actions from '../actions/App';
+import Utils from '../utils/Utils';
+import LocalStorageController from '../utils/LocalStorageController';
+import CreateContextMeun from '../utils/ContextMenu';
 
 export default class Player extends Component {
+  constructor() {
+    super();
+    this.state = {
+      repeat: 0,
+      queueLoop: false,
+      seeking: false
+    };
+  }
+
   componentWillMount() {
     let storage = this.props.appLocalStorage.get();
 
     // Audio
     this.props.play.audio.autoplay = true;
     this.props.play.audio.volume = storage.volume;
-
-    this.setState({
-      repeat: 0,
-      queueLoop: false,
-      seeking: false
-    });
 
     this.props.play.audio.addEventListener('timeupdate', ::this.timeUpdate, false);
 
@@ -46,153 +49,39 @@ export default class Player extends Component {
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (prevProps.play.audioUrl !== this.props.play.audioUrl) {
       this.props.play.audio.src = this.props.play.audioUrl;
       this.props.play.audio.play();
     }
   }
 
-  render() {
-    let volumeLevel = (this.props.play.audio.muted || this.props.play.audio.volume == 0) ? 'mute' :
-                      (this.props.play.audio.volume >= 0.8) ? 'large' :
-                      (this.props.play.audio.volume >= 0.2) ? 'medium' : 'small',
+  contextMeun() {
+    let menu = new CreateContextMeun(this, [
+      {
+        label: this.props.play.paused ? '再生' : '停止',
+        click: ::this.playMusic
+      },
+      'separator',
+      {
+        label: '倍速再生',
+        submenu: this.props.rate.map(s => {
+          return {
+            label: s == 1 ? '通常' : String(s),
+            click: this.updateProperty.bind(this, 'playbackRate', s)
+          };
+        })
+      }
+    ]);
 
-        volume = this.props.play.audio.muted ? 0 : this.props.play.audio.volume * 100,
-
-        renderThumbnailUrl = '',
-        renderAudioSrc     = '',
-        renderDuration     = '--:--',
-        renderTitle        = '',
-        renderAuthor       = '';
-
-    if (this.props.play.active) {
-      renderDuration = Utils.FormatSeconds(this.props.play.video.lengthInSeconds);
-    }
-
-    return (
-      <div
-        className={classNames({
-          'music-player': true,
-          'active': this.props.play.active
-        })}
-        onContextMenu={::this.contextMeun}>
-
-        <div className="player-content">
-          <div className="player-control">
-            <div className="player-controller">
-              <IconButton
-                onClick={::this.onRepeat}
-                className="repeat-button"
-                iconClassName={classNames({
-                  icon: true,
-                  [this.props.repeat[this.state.repeat]]: true,
-                  active: this.state.repeat
-                })} />
-
-              <IconButton
-                onClick={this.nextPlayMusic.bind(this, 'prev')}
-                className="prev-button"
-                iconClassName="icon" />
-
-              <IconButton
-                onClick={::this.playMusic}
-                className="play-pause-button"
-                iconClassName={classNames({
-                  icon: true,
-                  play: this.props.play.paused,
-                  pause: !this.props.play.paused
-                })}
-                style={{
-                  width: '60px',
-                  height: '60px'
-                }} />
-
-              <IconButton
-                onClick={this.nextPlayMusic.bind(this, 'next')}
-                className="next-button"
-                iconClassName="icon" />
-
-              <div className="player-volume">
-                <IconButton
-                  onClick={this.updateProperty.bind(this, 'muted')}
-                  ref="playerVolume"
-                  className="mute-button"
-                  iconClassName={classNames({
-                    icon: true,
-                    [volumeLevel]: true
-                  })}  />
-
-                <div className="player-volume-slider-container">
-                  <input
-                    type="range"
-                    onChange={::this.volumeChange}
-                    defaultValue={this.props.play.audio.volume * 100}
-                    className="player-volume-slider"
-                    ref="playerVolumeSlider"
-                    style={{
-                      backgroundImage: `-webkit-linear-gradient(left, ${this.context.muiTheme.palette.accent1Color} ${volume}%, #ddd ${volume}%)`
-                    }} />
-                </div>
-              </div>
-
-              <IconButton
-                onClick={this.props.stateChanger.bind(this, 'queue', {
-                  active: !this.props.queue.active
-                })}
-                className="queue-button"
-                iconClassName={classNames({
-                  icon: true,
-                  active: this.props.queue.active
-                })} />
-            </div>
-
-            <div className="player-timer">
-              <time
-                className="player-time"
-                ref="playerTime">00:00</time>
-              <time
-                className="player-duration"
-                ref="playerDuration">{renderDuration}</time>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className="player-progress"
-          ref="playerProgress"
-          onMouseDown={::this.progressMouseDown}>
-
-          <div
-            className="player-play-progress"
-            ref="playerPlayProgress" />
-        </div>
-      </div>
-    );
+    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
   }
 
-  onRepeat(e) {
-    let mode = (this.state.repeat + 1 <= this.props.repeat.length - 1) ? this.state.repeat + 1 : 0;
-
-    switch (mode) {
-      case 0: this.props.play.audio.loop = false; this.state.queueLoop = false; break;
-      case 1: this.props.play.audio.loop = false; this.state.queueLoop = true; break;
-      case 2: this.props.play.audio.loop = true; this.state.queueLoop = false; break;
+  handleEvent(e) {
+    switch (e.type) {
+      case 'mousemove': this.progressMove(e); break;
+      case 'mouseup'  : this.progressMouseUp(e); break;
     }
-
-    this.setState({
-      repeat: mode
-    });
-  }
-
-  updateProperty(prop, value) {
-    if (value.constructor.name === 'SyntheticMouseEvent') value = !this.state[prop];
-
-    this.props.play.audio[prop] = value;
-
-    this.setState({
-      [prop]: value
-    });
   }
 
   nextPlayMusic(type) {
@@ -225,26 +114,27 @@ export default class Player extends Component {
     });
   }
 
-  playMusic(e) {
-    this.props.play.audio.paused ? this.props.play.audio.play() : this.props.play.audio.pause();
-  }
+  onRepeat() {
+    let mode = (this.state.repeat + 1 <= this.props.repeat.length - 1) ? this.state.repeat + 1 : 0;
 
-  volumeChange(e) {
-    let volume = e.target.valueAsNumber / 100;
-
-    this.setState({ volume });
-    this.props.appLocalStorage.update({ volume });
-
-    this.props.play.audio.volume = volume;
-  }
-
-  timeUpdate(e) {
-    this.refs.playerTime.innerText = Utils.FormatSeconds(this.props.play.audio.currentTime);
-
-    if (!this.state.seeking) {
-      let width = (this.props.play.audio.currentTime / this.props.play.audio.duration) * 100;
-      this.refs.playerPlayProgress.style.width = `${width}%`;
+    switch (mode) {
+      case 0:
+        this.props.play.audio.loop = false;
+        this.setState({ queueLoop: false });
+        break;
+      case 1:
+        this.props.play.audio.loop = false;
+        this.setState({ 'queueLoop': true });
+        break;
+      case 2:
+        this.props.play.audio.loop = true;
+        this.setState({ 'queueLoop': false });
+        break;
     }
+
+    this.setState({
+      repeat: mode
+    });
   }
 
   playEnded() {
@@ -256,36 +146,14 @@ export default class Player extends Component {
     }
   }
 
-  contextMeun() {
-    let menu = new CreateContextMeun(this, [
-      {
-        label: this.props.play.paused ? '再生' : '停止',
-        click: ::this.playMusic
-      },
-      'separator',
-      {
-        label: '倍速再生',
-        submenu: this.props.rate.map(s => {
-          return {
-            label: s == 1 ? '通常' : String(s),
-            click: this.updateProperty.bind(this, 'playbackRate', s)
-          }
-        })
-      }
-    ]);
-
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+  playMusic() {
+    this.props.play.audio.paused ? this.props.play.audio.play() : this.props.play.audio.pause();
   }
 
-  progressMouseDown(e) {
+  progressMouseDown() {
     this.setState({ seeking: true });
     window.addEventListener('mousemove', this, false);
     window.addEventListener('mouseup', this, false);
-  }
-
-  progressMove(e) {
-    let width = ~~ ((e.offsetX / this.refs.playerProgress.clientWidth) * 100);
-    this.refs.playerPlayProgress.style.width = `${width}%`;
   }
 
   progressMouseUp(e) {
@@ -296,16 +164,157 @@ export default class Player extends Component {
     window.removeEventListener('mouseup', this, false);
   }
 
-  handleEvent(e) {
-    switch (e.type) {
-      case 'mousemove': this.progressMove(e); break;
-      case 'mouseup'  : this.progressMouseUp(e); break;
+  progressMove(e) {
+    let width = ~~ ((e.offsetX / this.refs.playerProgress.clientWidth) * 100);
+    this.refs.playerPlayProgress.style.width = `${width}%`;
+  }
+
+  timeUpdate() {
+    this.refs.playerTime.innerText = Utils.FormatSeconds(this.props.play.audio.currentTime);
+
+    if (!this.state.seeking) {
+      let width = (this.props.play.audio.currentTime / this.props.play.audio.duration) * 100;
+      this.refs.playerPlayProgress.style.width = `${width}%`;
     }
+  }
+
+  updateProperty(prop, value) {
+    if (value.constructor.name === 'SyntheticMouseEvent') value = !this.state[prop];
+
+    this.props.play.audio[prop] = value;
+
+    this.setState({
+      [prop]: value
+    });
+  }
+
+  volumeChange(e) {
+    let volume = e.target.valueAsNumber / 100;
+
+    this.setState({ volume });
+    this.props.appLocalStorage.update({ volume });
+
+    this.props.play.audio.volume = volume;
+  }
+
+  render() {
+    let volumeLevel = (this.props.play.audio.muted || this.props.play.audio.volume == 0) ? 'mute' :
+                      (this.props.play.audio.volume >= 0.8) ? 'large' :
+                      (this.props.play.audio.volume >= 0.2) ? 'medium' : 'small',
+
+        volume = this.props.play.audio.muted ? 0 : this.props.play.audio.volume * 100,
+        renderDuration = '--:--';
+
+    if (this.props.play.active) {
+      renderDuration = Utils.FormatSeconds(this.props.play.video.lengthInSeconds);
+    }
+
+    return (
+      <div
+        className={classNames({
+          'music-player': true,
+          'active': this.props.play.active
+        })}
+        onContextMenu={::this.contextMeun}
+      >
+        <div className="player-content">
+          <div className="player-control">
+            <div className="player-controller">
+              <IconButton
+                onClick={::this.onRepeat}
+                className="repeat-button"
+                iconClassName={classNames({
+                  icon: true,
+                  [this.props.repeat[this.state.repeat]]: true,
+                  active: this.state.repeat
+                })}
+              />
+              <IconButton
+                onClick={this.nextPlayMusic.bind(this, 'prev')}
+                className="prev-button"
+                iconClassName="icon"
+              />
+              <IconButton
+                onClick={::this.playMusic}
+                className="play-pause-button"
+                iconClassName={classNames({
+                  icon: true,
+                  play: this.props.play.paused,
+                  pause: !this.props.play.paused
+                })}
+                style={{
+                  width: '60px',
+                  height: '60px'
+                }}
+              />
+              <IconButton
+                onClick={this.nextPlayMusic.bind(this, 'next')}
+                className="next-button"
+                iconClassName="icon"
+              />
+              <div className="player-volume">
+                <IconButton
+                  onClick={this.updateProperty.bind(this, 'muted')}
+                  ref="playerVolume"
+                  className="mute-button"
+                  iconClassName={classNames({
+                    icon: true,
+                    [volumeLevel]: true
+                  })}
+                />
+                <div className="player-volume-slider-container">
+                  <input
+                    type="range"
+                    onChange={::this.volumeChange}
+                    defaultValue={this.props.play.audio.volume * 100}
+                    className="player-volume-slider"
+                    ref="playerVolumeSlider"
+                    style={{
+                      backgroundImage: `-webkit-linear-gradient(left, ${this.context.muiTheme.palette.accent1Color} ${volume}%, #ddd ${volume}%)`
+                    }}
+                  />
+                </div>
+              </div>
+              <IconButton
+                onClick={this.props.stateChanger.bind(this, 'queue', {
+                  active: !this.props.queue.active
+                })}
+                className="queue-button"
+                iconClassName={classNames({
+                  icon: true,
+                  active: this.props.queue.active
+                })}
+              />
+            </div>
+            <div className="player-timer">
+              <time
+                className="player-time"
+                ref="playerTime"
+              >00:00</time>
+              <time
+                className="player-duration"
+                ref="playerDuration"
+              >{renderDuration}</time>
+            </div>
+          </div>
+        </div>
+        <div
+          className="player-progress"
+          ref="playerProgress"
+          onMouseDown={::this.progressMouseDown}
+        >
+          <div
+            className="player-play-progress"
+            ref="playerPlayProgress"
+          />
+        </div>
+      </div>
+    );
   }
 }
 
 Player.contextTypes = {
-  muiTheme: PropTypes.object.isRequired,
+  muiTheme: PropTypes.object.isRequired
 };
 
 Player.defaultProps = {
@@ -316,7 +325,7 @@ Player.defaultProps = {
   ],
   rate: [ 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4 ],
   appLocalStorage: new LocalStorageController('app')
-}
+};
 
 export default connect(
   state => ({

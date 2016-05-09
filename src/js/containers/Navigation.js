@@ -1,11 +1,26 @@
-import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import classNames from 'classnames'
-import { IconButton } from 'material-ui'
-import * as Actions from '../actions/App'
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import classNames from 'classnames';
+import { IconButton } from 'material-ui';
+import * as Actions from '../actions/App';
 
 export default class Navigation extends Component {
+  userIconRender() {
+    if (this.props.accounts.niconico.selected &&
+        this.props.accounts.niconico.selected.code === undefined) {
+      const account = this.props.accounts.niconico.selected;
+
+      return (
+        <img
+          className="avatar-image"
+          src={account.thumbnailUrl}
+          alt={account.nickname}
+        />
+      );
+    }
+  }
+
   render() {
     return (
       <nav className="navigation">
@@ -22,26 +37,13 @@ export default class Navigation extends Component {
                 iconClassName={classNames({
                   [`${i.id}-link`]: true,
                   selected: (i.target.indexOf(this.props.app.location) !== -1)
-                })} />
+                })}
+              />
             );
           })
         }</div>
       </nav>
     );
-  }
-
-  userIconRender() {
-    if (this.props.accounts.niconico.selected &&
-        this.props.accounts.niconico.selected.code === undefined) {
-      const account = this.props.accounts.niconico.selected;
-
-      return (
-        <img
-          className="avatar-image"
-          src={account.thumbnailUrl}
-          alt={account.nickname} />
-      );
-    }
   }
 }
 
@@ -52,7 +54,7 @@ Navigation.defaultProps = {
     { id: 'search', name: '検索', target: [ 'search'] },
     { id: 'settings', name: '設定', target: [ 'settings'] }
   ]
-}
+};
 
 export default connect(
   state => ({

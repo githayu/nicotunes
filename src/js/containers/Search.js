@@ -1,10 +1,9 @@
-import Remote, { Menu } from 'remote'
-import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import classNames from 'classnames'
+import Remote, { Menu } from 'remote';
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import classNames from 'classnames';
 import {
-  DropDownMenu,
   Menu as MuiMenu,
   MenuItem,
   FlatButton,
@@ -14,11 +13,11 @@ import {
   Tab,
   Checkbox as MuiCheckbox,
   CircularProgress
-} from 'material-ui'
+} from 'material-ui';
 
-import * as Actions from '../actions/App'
-import VideoItem from '../components/VideoItem'
-import CreateContextMeun from '../utils/ContextMenu'
+import * as Actions from '../actions/App';
+import VideoItem from '../components/VideoItem';
+import CreateContextMeun from '../utils/ContextMenu';
 
 export default class Search extends Component {
   componentWillMount() {
@@ -32,7 +31,7 @@ export default class Search extends Component {
     });
   }
 
-  componentWillUpdate(prevProps, prevState) {
+  componentWillUpdate(prevProps) {
     if (JSON.stringify(prevProps.search.items) !== JSON.stringify(this.props.search.items)) {
       this.setState({
         suggest: false
@@ -40,295 +39,9 @@ export default class Search extends Component {
     }
   }
 
-  render() {
-    return (
-      <div className="search-container">
-        <header className="search-header">
-          <form className="search-form">
-            <div className="search-form-basic">
-              <fieldset className="search-form-query">
-                <input
-                  ref="query"
-                  type="search"
-                  placeholder="検索"
-                  list="suggest"
-                  value={this.state.query.q}
-                  onKeyUp={::this.queryKeyUp}
-                  onChange={::this.suggest}
-                  onFocus={::this.queryFocus}
-                  onBlur={::this.queryBlur} />
-
-                <ul
-                  className={classNames({
-                    'suggest-list': true,
-                    'active': this.state.suggest
-                  })}
-                  onMouseEnter={::this.suggestMouseEnter}
-                  onMouseLeave={::this.suggestMouseLeave}>
-                  {
-                    this.props.search.suggest.map((candidates, index) => {
-                      return (
-                        <li
-                          key={candidates}
-                          className={classNames({
-                            selected: this.state.suggestIndex === index
-                          })}
-                          onClick={this.suggestClick.bind(this, candidates)}>{candidates}</li>
-                      );
-                    })
-                  }
-                </ul>
-              </fieldset>
-
-              <FlatButton
-                className="search-submit-button"
-                onClick={::this.search}
-                children={<span className="icon" />}
-                style={{
-                  minWidth: 'auto',
-                  flex: '0 0 48px',
-                  borderRadius: 0
-                }} />
-
-              <IconButton
-                className="search-sort-button"
-                iconClassName="icon"
-                tooltip="並び替え"
-                tooltipPosition="bottom-center"
-                onClick={e => {
-                  this.setState({
-                    sortWindow: !this.state.sortWindow,
-                    sortAnchor: e.currentTarget
-                  })
-                }}
-                style={{
-                  padding: 0,
-                  width: 'auto',
-                  height: 'auto'
-                }}/>
-
-              <Popover
-                open={this.state.sortWindow}
-                anchorEl={this.state.sortAnchor}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                targetOrigin={{ horizontal: 'right', vertical: 'top' }}
-                onRequestClose={() => {
-                  this.setState({ sortWindow: false });
-                }}>
-                <MuiMenu
-                  desktop={true}
-                  className="search-sort-select"
-                  value={this.state.query._sort}
-                  onChange={::this.sortOrderChange} >
-                  {
-                    this.props.sortOrder.map(e => {
-                      return (
-                        <MenuItem
-                          key={e.value}
-                          primaryText={e.label}
-                          value={e.value} />
-                      );
-                    })
-                  }
-                </MuiMenu>
-              </Popover>
-
-              <IconButton
-                className="search-form-advance-button"
-                iconClassName="icon"
-                tooltip="詳細検索"
-                tooltipPosition="bottom-center"
-                onClick={::this.advanced}
-                style={{
-                  padding: 0,
-                  width: 'auto',
-                  height: 'auto'
-                }} />
-            </div>
-
-            <Tabs
-              className={classNames({
-                'search-form-advance': true,
-                'active': this.state.advanced
-              })}
-              contentContainerClassName="search-form-tabs-container"
-              tabItemContainerStyle={{
-                borderBottom: '1px rgba(0,0,0,.15) solid',
-                position: 'relative',
-                zIndex: 1
-              }}
-              inkBarStyle={{
-                height: '3px',
-                marginTop: '-3px',
-                zIndex: 2
-              }} >
-
-              <Tab label="検索対象" >
-
-                <fieldset
-                  className="search-targets">
-                  {
-                    this.props.targets.map(target => {
-                      return (
-                        <MuiCheckbox
-                          key={target.value}
-                          label={target.label}
-                          detaultValue={target.value}
-                          defaultChecked={this.state.query.targets.includes(target.value)}
-                          onCheck={this.targetsChange.bind(this, target.value)} />
-                      );
-                    })
-                  }
-                </fieldset>
-              </Tab>
-
-              <Tab
-                label="数値指定"
-                style={{ color: '#333' }} >
-                <div className="numeric-fields">
-                  {
-                    this.props.numericField.map(field => {
-                      let gte = (
-                        <input
-                          key="gte"
-                          type={field.type}
-                          data-field-name={field.name}
-                          onChange={::this.filtersChange}
-                          className="gte"
-                          placeholder="最小" />
-                      ),
-
-                      lte = (
-                        <input
-                          key="lte"
-                          type={field.type}
-                          data-field-name={field.name}
-                          onChange={::this.filtersChange}
-                          className="lte"
-                          placeholder="最大" />
-                      ),
-
-                      inputForm = (field.type == 'datetime-local') ? ([
-                          <label key="gte"><span>開始日</span>{ gte }</label>,
-                          <label key="lte"><span>終了日</span>{ lte }</label>
-                      ]) : ([
-                        gte, <span key="space" className="space" />, lte
-                      ]);
-
-                      return (
-                        <div
-                          key={field.name}
-                          className={classNames({
-                            [field.name]: true,
-                            fieldset: true
-                          })}>
-                          <h1>{field.label}</h1>
-                          <fieldset
-                            ref={field.name}
-                            name={field.name}
-                            className="input-form-container">
-                            { inputForm }
-                          </fieldset>
-                        </div>
-                      );
-                    })
-                  }
-                </div>
-              </Tab>
-
-              <Tab
-                label="カテゴリ指定"
-                style={{ color: '#333' }} >
-
-                <fieldset className="category-filter">
-                  {
-                    this.props.categoryTags.map(e => {
-                      let checked = (Array.isArray(this.state.query.filters.categoryTags) && this.state.query.filters.categoryTags.indexOf(e.value) !== -1);
-
-                      return (
-                        <MuiCheckbox
-                          key={e.value}
-                          label={e.value}
-                          defaultValue={e.value}
-                          defaultChecked={checked}
-                          onCheck={::this.categoryTagsChange} />
-                      );
-                    })
-                  }
-                </fieldset>
-              </Tab>
-            </Tabs>
-          </form>
-        </header>
-
-        <main className="search-content">
-          <ul className="video-list">{ this.videoItemsRender() }</ul>
-        </main>
-
-        <div className="loading-progress">
-          <CircularProgress />
-        </div>
-      </div>
-    );
-  }
-
-  videoItemsRender() {
-    if (!this.props.search.items.length) return;
-
-    return this.props.search.items.map(video => {
-      return (
-        <VideoItem
-          onClick={this.props.playMusic.bind(this, {
-            account: this.props.accounts.niconico.selected,
-            video,
-            videos: this.props.search.items,
-            mode: ['video']
-          })}
-          onContextMenu={this.contextMeun.bind(this, video)}
-          video={video}
-          active={this.props.play.active && video.id == this.props.play.video.id}
-          key={video.id} />
-      );
-    })
-  }
-
-  sortOrderChange(e, sortOrder) {
+  advanced() {
     this.setState({
-      sortWindow: false,
-      query: Object.assign({}, this.state.query, {
-        _sort: sortOrder
-      })
-    });
-
-    if (this.state.query.q.length) {
-      this.search({
-        _sort: sortOrder
-      });
-    }
-  }
-
-  targetsChange(target) {
-    let targets = [];
-
-    if (this.state.query.targets.length) {
-      targets = this.state.query.targets.split(',');
-      let index = targets.indexOf(target);
-
-      if (index === -1) {
-        targets.push(target);
-      } else {
-        targets.splice(index, 1);
-      }
-    } else {
-      targets.push(target);
-    }
-
-    console.log(targets.join());
-
-    this.setState({
-      query: Object.assign({}, this.state.query, {
-        targets: targets.join()
-      })
+      advanced: !this.state.advanced
     });
   }
 
@@ -340,7 +53,7 @@ export default class Search extends Component {
     if (index !== -1 && !state) {
       categoryTags.splice(index, 1);
     } else if (index === -1 && state) {
-      categoryTags.push(value)
+      categoryTags.push(value);
     }
 
     this.setState({
@@ -350,6 +63,22 @@ export default class Search extends Component {
         })
       })
     });
+  }
+
+  contextMeun(video) {
+    let menu = new CreateContextMeun(this, [
+      'play',
+      'playChorus',
+      'nextPlay',
+      'queueAdd',
+      'separator',
+      'videoDetail',
+      'separator',
+      'niconico',
+      'nicofinder'
+    ], video);
+
+    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
   }
 
   filtersChange(e) {
@@ -378,20 +107,18 @@ export default class Search extends Component {
     });
   }
 
-  contextMeun(video) {
-    let menu = new CreateContextMeun(this, [
-      'play',
-      'playChorus',
-      'nextPlay',
-      'queueAdd',
-      'separator',
-      'videoDetail',
-      'separator',
-      'niconico',
-      'nicofinder'
-    ], video);
+  queryBlur() {
+    if (!this.state.suggestMouseEnter) {
+      this.setState({
+        suggest: false
+      });
+    }
+  }
 
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+  queryFocus() {
+    this.setState({
+      suggest: true
+    });
   }
 
   queryKeyUp(e) {
@@ -424,16 +151,37 @@ export default class Search extends Component {
     }
   }
 
-  queryFocus() {
+  search(optionalQuery) {
+    if (typeof optionalQuery === 'object' && optionalQuery.constructor !== Object) {
+      optionalQuery = {};
+    }
+
+    let req = {
+      service: 'video',
+      query: Object.assign({}, this.state.query, optionalQuery)
+    };
+
+    if (!req.query.q.length || !req.query.targets.length) return;
+
+    this.props.niconicoSearch(req);
+
     this.setState({
-      suggest: true
+      suggestIndex: false,
+      query: req.query
     });
   }
 
-  queryBlur() {
-    if (!this.state.suggestMouseEnter) {
-      this.setState({
-        suggest: false
+  sortOrderChange(e, sortOrder) {
+    this.setState({
+      sortWindow: false,
+      query: Object.assign({}, this.state.query, {
+        _sort: sortOrder
+      })
+    });
+
+    if (this.state.query.q.length) {
+      this.search({
+        _sort: sortOrder
       });
     }
   }
@@ -477,30 +225,301 @@ export default class Search extends Component {
     if (this.state.suggest) this.refs.query.focus();
   }
 
-  advanced() {
+  targetsChange(target) {
+    let targets = [];
+
+    if (this.state.query.targets.length) {
+      targets = this.state.query.targets.split(',');
+      let index = targets.indexOf(target);
+
+      if (index === -1) {
+        targets.push(target);
+      } else {
+        targets.splice(index, 1);
+      }
+    } else {
+      targets.push(target);
+    }
+
+    console.log(targets.join());
+
     this.setState({
-      advanced: !this.state.advanced
+      query: Object.assign({}, this.state.query, {
+        targets: targets.join()
+      })
     });
   }
 
-  search(optionalQuery) {
-    if (typeof optionalQuery === 'object' && optionalQuery.constructor !== Object) {
-      optionalQuery = {};
-    }
+  videoItemsRender() {
+    if (!this.props.search.items.length) return;
 
-    let req = {
-      service: 'video',
-      query: Object.assign({}, this.state.query, optionalQuery)
-    };
-
-    if (!req.query.q.length || !req.query.targets.length) return;
-
-    this.props.niconicoSearch(req);
-
-    this.setState({
-      suggestIndex: false,
-      query: req.query
+    return this.props.search.items.map(video => {
+      return (
+        <VideoItem
+          onClick={this.props.playMusic.bind(this, {
+            account: this.props.accounts.niconico.selected,
+            video,
+            videos: this.props.search.items,
+            mode: ['video']
+          })}
+          onContextMenu={this.contextMeun.bind(this, video)}
+          video={video}
+          active={this.props.play.active && video.id == this.props.play.video.id}
+          key={video.id}
+        />
+      );
     });
+  }
+
+  render() {
+    return (
+      <div className="search-container">
+        <header className="search-header">
+          <form className="search-form">
+            <div className="search-form-basic">
+              <fieldset className="search-form-query">
+                <input
+                  ref="query"
+                  type="search"
+                  placeholder="検索"
+                  list="suggest"
+                  value={this.state.query.q}
+                  onKeyUp={::this.queryKeyUp}
+                  onChange={::this.suggest}
+                  onFocus={::this.queryFocus}
+                  onBlur={::this.queryBlur}
+                />
+                <ul
+                  className={classNames({
+                    'suggest-list': true,
+                    'active': this.state.suggest
+                  })}
+                  onMouseEnter={::this.suggestMouseEnter}
+                  onMouseLeave={::this.suggestMouseLeave}
+                >
+                {
+                  this.props.search.suggest.map((candidates, index) => {
+                    return (
+                      <li
+                        key={candidates}
+                        className={classNames({
+                          selected: this.state.suggestIndex === index
+                        })}
+                        onClick={this.suggestClick.bind(this, candidates)}
+                      >{candidates}</li>
+                    );
+                  })
+                }
+                </ul>
+              </fieldset>
+
+              <FlatButton
+                className="search-submit-button"
+                onClick={::this.search}
+                children={<span className="icon" />}
+                style={{
+                  minWidth: 'auto',
+                  flex: '0 0 48px',
+                  borderRadius: 0
+                }}
+              />
+              <IconButton
+                className="search-sort-button"
+                iconClassName="icon"
+                tooltip="並び替え"
+                tooltipPosition="bottom-center"
+                onClick={e => {
+                  this.setState({
+                    sortWindow: !this.state.sortWindow,
+                    sortAnchor: e.currentTarget
+                  });
+                }}
+                style={{
+                  padding: 0,
+                  width: 'auto',
+                  height: 'auto'
+                }}
+              />
+
+              <Popover
+                open={this.state.sortWindow}
+                anchorEl={this.state.sortAnchor}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+                onRequestClose={() => {
+                  this.setState({ sortWindow: false });
+                }}
+              >
+                <MuiMenu
+                  desktop
+                  className="search-sort-select"
+                  value={this.state.query._sort}
+                  onChange={::this.sortOrderChange}
+                >
+                {
+                  this.props.sortOrder.map(e => {
+                    return (
+                      <MenuItem
+                        key={e.value}
+                        primaryText={e.label}
+                        value={e.value}
+                      />
+                    );
+                  })
+                }
+                </MuiMenu>
+              </Popover>
+
+              <IconButton
+                className="search-form-advance-button"
+                iconClassName="icon"
+                tooltip="詳細検索"
+                tooltipPosition="bottom-center"
+                onClick={::this.advanced}
+                style={{
+                  padding: 0,
+                  width: 'auto',
+                  height: 'auto'
+                }}
+              />
+            </div>
+
+            <Tabs
+              className={classNames({
+                'search-form-advance': true,
+                'active': this.state.advanced
+              })}
+              contentContainerClassName="search-form-tabs-container"
+              tabItemContainerStyle={{
+                borderBottom: '1px rgba(0,0,0,.15) solid',
+                position: 'relative',
+                zIndex: 1
+              }}
+              inkBarStyle={{
+                height: '3px',
+                marginTop: '-3px',
+                zIndex: 2
+              }}
+            >
+              <Tab label="検索対象" >
+                <fieldset
+                  className="search-targets"
+                >
+                {
+                  this.props.targets.map(target => {
+                    return (
+                      <MuiCheckbox
+                        key={target.value}
+                        label={target.label}
+                        detaultValue={target.value}
+                        defaultChecked={this.state.query.targets.includes(target.value)}
+                        onCheck={this.targetsChange.bind(this, target.value)}
+                      />
+                    );
+                  })
+                }
+                </fieldset>
+              </Tab>
+
+              <Tab
+                label="数値指定"
+                style={{ color: '#333' }}
+              >
+                <div className="numeric-fields">
+                  {
+                    this.props.numericField.map(field => {
+                      var gte, lte, inputForm;
+
+                      gte = (
+                        <input
+                          key="gte"
+                          type={field.type}
+                          data-field-name={field.name}
+                          onChange={::this.filtersChange}
+                          className="gte"
+                          placeholder="最小"
+                        />
+                      );
+
+                      lte = (
+                        <input
+                          key="lte"
+                          type={field.type}
+                          data-field-name={field.name}
+                          onChange={::this.filtersChange}
+                          className="lte"
+                          placeholder="最大"
+                        />
+                      );
+
+                      inputForm = (field.type == 'datetime-local') ? ([
+                        <label key="gte"><span>開始日</span>{ gte }</label>,
+                        <label key="lte"><span>終了日</span>{ lte }</label>
+                      ]) : ([
+                        gte,
+                        <span
+                          key="space"
+                          className="space"
+                        />,
+                        lte
+                      ]);
+
+                      return (
+                        <div
+                          key={field.name}
+                          className={classNames({
+                            [field.name]: true,
+                            fieldset: true
+                          })}
+                        >
+                          <h1>{field.label}</h1>
+                          <fieldset
+                            ref={field.name}
+                            name={field.name}
+                            className="input-form-container"
+                          >{ inputForm }</fieldset>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
+              </Tab>
+
+              <Tab
+                label="カテゴリ指定"
+                style={{ color: '#333' }}
+              >
+                <fieldset className="category-filter">
+                  {
+                    this.props.categoryTags.map(e => {
+                      let checked = (Array.isArray(this.state.query.filters.categoryTags) && this.state.query.filters.categoryTags.indexOf(e.value) !== -1);
+
+                      return (
+                        <MuiCheckbox
+                          key={e.value}
+                          label={e.value}
+                          defaultValue={e.value}
+                          defaultChecked={checked}
+                          onCheck={::this.categoryTagsChange}
+                        />
+                      );
+                    })
+                  }
+                </fieldset>
+              </Tab>
+            </Tabs>
+          </form>
+        </header>
+
+        <main className="search-content">
+          <ul className="video-list">{ this.videoItemsRender() }</ul>
+        </main>
+
+        <div className="loading-progress">
+          <CircularProgress />
+        </div>
+      </div>
+    );
   }
 }
 
@@ -564,9 +583,9 @@ Search.defaultProps = {
   targets: [
     { label: 'タイトル', value: 'title' },
     { label: '説明文', value: 'description' },
-    { label: 'タグ', value: 'tags' },
+    { label: 'タグ', value: 'tags' }
   ]
-}
+};
 
 export default connect(
   state => ({

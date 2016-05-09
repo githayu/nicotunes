@@ -1,9 +1,9 @@
-import { ACTION, GET, REQ } from '../constants'
-import IndexedDBController from '../utils/IndexedDBController'
-import LocalStorageController from '../utils/LocalStorageController'
-import electron, { ipcRenderer } from 'electron'
+import { ACTION, GET } from '../constants';
+import IndexedDBController from '../utils/IndexedDBController';
+import LocalStorageController from '../utils/LocalStorageController';
+import { ipcRenderer } from 'electron';
 
-const IDB = new IndexedDBController()
+const IDB = new IndexedDBController();
 const appLocalStorage = new LocalStorageController('app');
 const initialState = {
   niconico: {

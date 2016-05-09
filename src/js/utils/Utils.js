@@ -23,9 +23,9 @@ export default class Utils {
     var result = {},
         query = (url.startsWith('?') ? url.substring(1) : url).split('&');
 
-    for(var i = 0; query[i]; i++) {
-        var p = query[i].split('=');
-        result[p[0]] = p[1];
+    for (var i = 0; query[i]; i++) {
+      var p = query[i].split('=');
+      result[p[0]] = p[1];
     }
 
     return result;
