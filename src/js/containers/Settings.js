@@ -1,11 +1,11 @@
-import Remote, { Menu, dialog as Dialog } from 'remote';
+import { dialog, remote } from 'electron';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Tabs, Tab, RaisedButton } from 'material-ui';
-import * as Actions from '../actions/App';
+import { accountActions, appActions } from '../actions';
 
-export default class Settings extends Component {
+class Settings extends Component {
   constructor() {
     super();
 
@@ -16,14 +16,13 @@ export default class Settings extends Component {
 
   activeNicoAccountRadio(account) {
     this.refs[`activeNicoAccountRadio-${account.id}`].checked = true;
-    this.props.nicoAccountController({
+    this.props.actions.nicoAccountController({
       type: 'change',
       account
     });
   }
 
   handleChange(value) {
-    console.log(value,this);
     this.setState({
       value: value
     });
@@ -33,24 +32,24 @@ export default class Settings extends Component {
     let menu = [
       {
         label: `${account.nickname} (${account.id}) を削除`,
-        click: this.props.nicoAccountController.bind(this, {
+        click: this.props.actions.nicoAccountController.bind(this, {
           type: 'delete',
           account
         })
       }
     ];
 
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+    remote.Menu.buildFromTemplate(menu).popup(remote.getCurrentWindow());
   }
 
   nicoAccountDelete(account) {
     if (this.props.accounts.niconico.selected.id != account.id) {
-      this.props.nicoAccountController({
+      this.props.actions.nicoAccountController({
         type: 'delete',
         account
       });
     } else {
-      Dialog.showMessageBox({
+      dialog.showMessageBox({
         type: 'info',
         buttons: ['OK'],
         message: 'アクティブアカウントは削除できません'
@@ -126,7 +125,7 @@ export default class Settings extends Component {
             </table>
 
             <RaisedButton
-              onClick={this.props.Router.bind(this, 'login')}
+              onClick={this.props.actions.Router.bind(this, 'login')}
               label="アカウントを追加"
               className="add-niconico-account"
               style={{
@@ -146,6 +145,7 @@ export default connect(
   state => ({
     accounts: state.accounts
   }),
-
-  dispatch => bindActionCreators(Actions, dispatch)
+  dispatch => ({
+    actions: bindActionCreators(Object.assign({}, accountActions, appActions), dispatch)
+  })
 )(Settings);

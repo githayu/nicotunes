@@ -1,4 +1,4 @@
-import Remote, { Menu } from 'remote';
+import { remote } from 'electron';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -15,11 +15,75 @@ import {
   CircularProgress
 } from 'material-ui';
 
-import * as Actions from '../actions/App';
+import { searchActions, appActions, playActions } from '../actions';
 import VideoItem from '../components/VideoItem';
 import CreateContextMeun from '../utils/ContextMenu';
 
-export default class Search extends Component {
+class Search extends Component {
+  static defaultProps = {
+    sortOrder: [
+      { label: '再生が多い順', value: '-viewCounter' },
+      { label: '再生が少ない順', value: '+viewCounter' },
+      { label: 'マイリスト登録が多い順', value: '-mylistCounter' },
+      { label: 'マイリスト登録が少ない順', value: '+mylistCounter' },
+      { label: 'コメントが多い順', value: '-commentCounter' },
+      { label: 'コメントが少ない順', value: '+commentCounter' },
+      { label: 'コメントが新しい順', value: '-lastCommentTime' },
+      { label: 'コメントが古い順', value: '+lastCommentTime' },
+      { label: '投稿が新しい順', value: '-startTime' },
+      { label: '投稿が古い順', value: '+startTime' },
+      { label: '再生時間が長い順', value: '-lengthSeconds' },
+      { label: '再生時間が短い順', value: '+lengthSeconds' }
+    ],
+
+    categoryTags: [
+      { value: 'エンターテイメント' },
+      { value: '音楽' },
+      { value: '歌ってみた' },
+      { value: '演奏してみた' },
+      { value: '踊ってみた' },
+      { value: 'VOCALOID' },
+      { value: 'ニコニコインディーズ' },
+      { value: '動物' },
+      { value: '料理' },
+      { value: '自然' },
+      { value: '旅行' },
+      { value: 'スポーツ' },
+      { value: 'ニコニコ動画講座' },
+      { value: '車載動画' },
+      { value: '歴史' },
+      { value: '政治' },
+      { value: '科学' },
+      { value: 'ニコニコ技術部' },
+      { value: 'ニコニコ手芸部' },
+      { value: '作ってみた' },
+      { value: 'アニメ' },
+      { value: 'ゲーム' },
+      { value: '東方' },
+      { value: 'アイドルマスター' },
+      { value: 'ラジオ' },
+      { value: '描いてみた' },
+      { value: '例のアレ' },
+      { value: '日記' },
+      { value: 'その他' },
+      { value: 'R-18' }
+    ],
+
+    numericField: [
+      { name: 'viewCounter', label: '再生数', type: 'number' },
+      { name: 'mylistCounter', label: 'マイリスト数', type: 'number' },
+      { name: 'commentCounter', label: 'コメント数', type: 'number' },
+      { name: 'lengthSeconds', label: '再生時間', type: 'number' },
+      { name: 'startTime', label: '投稿日時', type: 'datetime-local' }
+    ],
+
+    targets: [
+      { label: 'タイトル', value: 'title' },
+      { label: '説明文', value: 'description' },
+      { label: 'タグ', value: 'tags' }
+    ]
+  };
+
   componentWillMount() {
     this.setState({
       advanced: false,
@@ -78,7 +142,7 @@ export default class Search extends Component {
       'nicofinder'
     ], video);
 
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+    remote.Menu.buildFromTemplate(menu).popup(remote.getCurrentWindow());
   }
 
   filtersChange(e) {
@@ -163,7 +227,7 @@ export default class Search extends Component {
 
     if (!req.query.q.length || !req.query.targets.length) return;
 
-    this.props.niconicoSearch(req);
+    this.props.actions.niconicoSearch(req);
 
     this.setState({
       suggestIndex: false,
@@ -197,9 +261,9 @@ export default class Search extends Component {
     });
 
     if (query.length) {
-      this.props.niconicoSuggest(query);
+      this.props.actions.niconicoSuggest(query);
     } else {
-      this.props.stateChanger('search', {
+      this.props.actions.stateChanger('search', {
         suggest: []
       });
     }
@@ -256,7 +320,7 @@ export default class Search extends Component {
     return this.props.search.items.map(video => {
       return (
         <VideoItem
-          onClick={this.props.playMusic.bind(this, {
+          onClick={this.props.actions.playMusic.bind(this, {
             account: this.props.accounts.niconico.selected,
             video,
             videos: this.props.search.items,
@@ -411,7 +475,7 @@ export default class Search extends Component {
                       <MuiCheckbox
                         key={target.value}
                         label={target.label}
-                        detaultValue={target.value}
+                        defaultValue={target.value}
                         defaultChecked={this.state.query.targets.includes(target.value)}
                         onCheck={this.targetsChange.bind(this, target.value)}
                       />
@@ -523,75 +587,13 @@ export default class Search extends Component {
   }
 }
 
-Search.defaultProps = {
-  sortOrder: [
-    { label: '再生が多い順', value: '-viewCounter' },
-    { label: '再生が少ない順', value: '+viewCounter' },
-    { label: 'マイリスト登録が多い順', value: '-mylistCounter' },
-    { label: 'マイリスト登録が少ない順', value: '+mylistCounter' },
-    { label: 'コメントが多い順', value: '-commentCounter' },
-    { label: 'コメントが少ない順', value: '+commentCounter' },
-    { label: 'コメントが新しい順', value: '-lastCommentTime' },
-    { label: 'コメントが古い順', value: '+lastCommentTime' },
-    { label: '投稿が新しい順', value: '-startTime' },
-    { label: '投稿が古い順', value: '+startTime' },
-    { label: '再生時間が長い順', value: '-lengthSeconds' },
-    { label: '再生時間が短い順', value: '+lengthSeconds' }
-  ],
-
-  categoryTags: [
-    { value: 'エンターテイメント' },
-    { value: '音楽' },
-    { value: '歌ってみた' },
-    { value: '演奏してみた' },
-    { value: '踊ってみた' },
-    { value: 'VOCALOID' },
-    { value: 'ニコニコインディーズ' },
-    { value: '動物' },
-    { value: '料理' },
-    { value: '自然' },
-    { value: '旅行' },
-    { value: 'スポーツ' },
-    { value: 'ニコニコ動画講座' },
-    { value: '車載動画' },
-    { value: '歴史' },
-    { value: '政治' },
-    { value: '科学' },
-    { value: 'ニコニコ技術部' },
-    { value: 'ニコニコ手芸部' },
-    { value: '作ってみた' },
-    { value: 'アニメ' },
-    { value: 'ゲーム' },
-    { value: '東方' },
-    { value: 'アイドルマスター' },
-    { value: 'ラジオ' },
-    { value: '描いてみた' },
-    { value: '例のアレ' },
-    { value: '日記' },
-    { value: 'その他' },
-    { value: 'R-18' }
-  ],
-
-  numericField: [
-    { name: 'viewCounter', label: '再生数', type: 'number' },
-    { name: 'mylistCounter', label: 'マイリスト数', type: 'number' },
-    { name: 'commentCounter', label: 'コメント数', type: 'number' },
-    { name: 'lengthSeconds', label: '再生時間', type: 'number' },
-    { name: 'startTime', label: '投稿日時', type: 'datetime-local' }
-  ],
-
-  targets: [
-    { label: 'タイトル', value: 'title' },
-    { label: '説明文', value: 'description' },
-    { label: 'タグ', value: 'tags' }
-  ]
-};
-
 export default connect(
   state => ({
     play: state.play,
     search: state.search,
     accounts: state.accounts
   }),
-  dispatch => bindActionCreators(Actions, dispatch)
+  dispatch => ({
+    actions: bindActionCreators(Object.assign({}, searchActions, appActions, playActions), dispatch)
+  })
 )(Search);

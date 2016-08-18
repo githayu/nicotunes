@@ -86,8 +86,6 @@ export default class IndexedDBController {
         else {
           let request = store.put(values);
 
-          console.log(request);
-
           request.onsuccess = e => {
             resolve(e.type);
           };

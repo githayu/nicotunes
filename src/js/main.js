@@ -1,5 +1,4 @@
-import app from 'app';
-import { Menu, ipcMain, BrowserWindow } from 'electron';
+import { app, Menu, ipcMain, BrowserWindow } from 'electron';
 import electronSquirrelSetup from 'electron-squirrel-startup';
 import UpdateChecker from './utils/UpdateChecker';
 import { mainMenu } from './mainMenu';
@@ -29,7 +28,10 @@ app.on('ready', function() {
   });
 
   mainWindow.loadURL(`file://${__dirname}/../html/index.html`);
-  // mainWindow.openDevTools();
+
+  if (process.title.includes('prebuilt')) {
+    mainWindow.openDevTools();
+  }
 
   let checker = new UpdateChecker({
     user: 'githayu',

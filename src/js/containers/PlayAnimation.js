@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import * as Actions from '../actions/App';
 
-export default class PlayAnimation extends Component {
+class PlayAnimation extends Component {
   render() {
     return (
       <div
@@ -24,6 +22,5 @@ export default class PlayAnimation extends Component {
 export default connect(
   state => ({
     play: state.play
-  }),
-  dispatch => bindActionCreators(Actions, dispatch)
+  })
 )(PlayAnimation);

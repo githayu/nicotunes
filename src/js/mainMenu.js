@@ -1,5 +1,4 @@
-import app from 'app';
-import { Menu, dialog } from 'electron';
+import { app, Menu, dialog } from 'electron';
 
 export const mainMenu = Menu.buildFromTemplate([
   {

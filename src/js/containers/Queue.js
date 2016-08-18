@@ -1,4 +1,4 @@
-import Remote, { Menu } from 'remote';
+import { remote } from 'electron';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -7,12 +7,11 @@ import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import classNames from 'classnames';
 import QueueItem from './QueueItem';
-import * as Actions from '../actions/App';
+import { queueActions, playActions } from '../actions';
 import CreateContextMeun from '../utils/ContextMenu';
+import flow from 'lodash.flow';
 
-@DragDropContext(HTML5Backend)
-
-export default class Queue extends Component {
+class Queue extends Component {
   constructor(props) {
     super(props);
 
@@ -46,7 +45,7 @@ export default class Queue extends Component {
       'nicofinder'
     ], video);
 
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+    remote.Menu.buildFromTemplate(menu).popup(remote.getCurrentWindow());
   }
 
   dragAction(bool) {
@@ -66,9 +65,9 @@ export default class Queue extends Component {
             video={video}
             active={this.props.play.active && video.id == this.props.play.video.id}
             key={video.id}
-            sortAction={::this.props.queueController}
+            sortAction={::this.props.actions.queueController}
             dragAction={::this.dragAction}
-            onClick={this.props.playMusic.bind(this, {
+            onClick={this.props.actions.playMusic.bind(this, {
               account: this.props.accounts.niconico.selected,
               video: video,
               videos: []
@@ -104,7 +103,7 @@ export default class Queue extends Component {
               <span className="music-count">{`${this.props.queue.items.length}曲`}</span>
               <div className="queue-action">
                 <IconButton
-                  onClick={this.props.queueController.bind(this, {
+                  onClick={this.props.actions.queueController.bind(this, {
                     type: 'shuffle'
                   })}
                   tooltip="シャッフル"
@@ -112,7 +111,7 @@ export default class Queue extends Component {
                   iconClassName="queue-shuffle"
                 />
                 <IconButton
-                  onClick={this.props.queueController.bind(this, {
+                  onClick={this.props.actions.queueController.bind(this, {
                     type: 'clear',
                     item: this.props.play.video
                   })}
@@ -136,11 +135,18 @@ export default class Queue extends Component {
   }
 }
 
-export default connect(
-  state => ({
-    play: state.play,
-    queue: state.queue,
-    accounts: state.accounts
-  }),
-  dispatch => bindActionCreators(Actions, dispatch)
+export default flow(
+  DragDropContext(
+    HTML5Backend
+  ),
+  connect(
+    state => ({
+      play: state.play,
+      queue: state.queue,
+      accounts: state.accounts
+    }),
+    dispatch => ({
+      actions: bindActionCreators(Object.assign({}, queueActions, playActions), dispatch)
+    })
+  )
 )(Queue);

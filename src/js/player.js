@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import Utils from '../js/utils/Utils';
 
 $(async () => {
   var formData = new FormData();
@@ -22,17 +23,34 @@ $(async () => {
 
   // 動画URLをひっこ抜く
   let getflvApi = await fetch(`http://flapi.nicovideo.jp/api/getflv/${req.id}`).then(res => res.text()),
-      getflv = Player.fn.url_parameter_decode(getflvApi);
+      getflv = Utils.URLParamDecoder(getflvApi);
 
   // プレイヤーの初期化
   P.classList.add('extension');
   P.addEventListener('screenResize', screenResize);
+
+  var observer = new MutationObserver(mutations => mutations.forEach(mutation => {
+    for (let item of mutation.addedNodes) {
+      if (item.nodeType === 1 && item.classList.contains('extension-receiver')) {
+        item.value = JSON.stringify({
+          type: 'getflv',
+          data: getflv
+        });
+        observer.disconnect();
+        break;
+      }
+    }
+  }));
+
+  observer.observe(P, {
+    childList: true
+  });
+
   Player.create.init();
 
   if (getflv.done == 'true') {
     P.classList.add('login');
-    P.querySelector('.player-comment-input').value = '(⋈･◡･)つ　まだコメントできません';
-    P.dataset.src = decodeURIComponent(getflv.url);
+    P.querySelector('.player-comment-input').value = '(⋈･◡･)つ　コメントはできません';
     Player.state.setting.comment_font = "'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro', YuGothic, 'Yu Gothic', 游ゴシック, Meiryo, メイリオ, Helvetica, sans-serif"
   }
 

@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Nicofinder Player</title>
-  <base href="http://www.nicofinder.net/" target="_self">
-  <link rel="stylesheet" href="/css/common.css">
-  <link rel="stylesheet" href="/css/watch/2/player.css">
+  <link rel="stylesheet" href="http://www.nicofinder.net/css/common.css">
+  <link rel="stylesheet" href="http://www.nicofinder.net/css/watch/2/player.css">
   <style>
   :root {
     overflow: hidden;
@@ -13,8 +12,9 @@
 
   @font-face {
     font-family: 'icon';
-    src: url('/font/material-design/icon.woff') format('woff'),
-         url('/font/material-design/icon.ttf') format('truetype');
+    src: url('https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/fonts/Material-Design-Iconic-Font.woff2') format('woff2'),
+         url('https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/fonts/Material-Design-Iconic-Font.woff') format('woff'),
+         url('https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/fonts/Material-Design-Iconic-Font.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
   }
@@ -25,15 +25,16 @@
 <div id="player" class="no-easing"></div>
 
 <script>
+  window.NicofinderExtension = true;
   window.jQuery = window.$ = require('jquery');
   window.req = JSON.parse(decodeURIComponent(document.location.search.slice(1)));
   window.wd = { proxy: 0, view: 0, version: 2, playlist: 0 };
   window.Data = {};
 
   var scripts = [
-    '/js/common.js',
-    '/js/watch/2/player.js',
-    `file://${location.pathname}/../../js/player.js`
+    'http://www.nicofinder.net/js/common.js',
+    'http://www.nicofinder.net/js/watch/2/player.js',
+    `../js/player.js`
   ];
 
   for (let i = 0; i < scripts.length; i++) {

@@ -3,6 +3,7 @@ import { DropTarget, DragSource } from 'react-dnd';
 import classNames from 'classnames';
 import Utils from '../utils/Utils';
 import PlayAnimation from './PlayAnimation';
+import flow from 'lodash/flow';
 
 const Types = {
   ITEM: 'item'
@@ -43,28 +44,7 @@ const itemTarget = {
   }
 };
 
-@DropTarget(
-  Types.ITEM,
-  itemTarget,
-  (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver(),
-    isOverCurrent: monitor.isOver({ shallow: true }),
-    canDrop: monitor.canDrop(),
-    itemType: monitor.getItemType()
-  })
-)
-
-@DragSource(
-  Types.ITEM,
-  itemSource,
-  (connect, monitor) => ({
-    connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
-  })
-)
-
-export default class QueueItem extends Component {
+class QueueItem extends Component {
   render() {
     const {
       connectDragSource,
@@ -98,3 +78,25 @@ export default class QueueItem extends Component {
     ));
   }
 }
+
+export default flow(
+  DragSource(
+    Types.ITEM,
+    itemSource,
+    (connect, monitor) => ({
+      connectDragSource: connect.dragSource(),
+      isDragging: monitor.isDragging()
+    })
+  ),
+  DropTarget(
+    Types.ITEM,
+    itemTarget,
+    (connect, monitor) => ({
+      connectDropTarget: connect.dropTarget(),
+      isOver: monitor.isOver(),
+      isOverCurrent: monitor.isOver({ shallow: true }),
+      canDrop: monitor.canDrop(),
+      itemType: monitor.getItemType()
+    })
+  )
+)(QueueItem);

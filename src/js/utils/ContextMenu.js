@@ -1,4 +1,4 @@
-import { shell } from 'remote';
+import { shell } from 'electron';
 
 export default class CreateContextMeun {
   constructor(component, order, item) {

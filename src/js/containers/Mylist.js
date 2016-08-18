@@ -1,13 +1,36 @@
-import Remote, { Menu } from 'remote';
+import { remote } from 'electron';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { FloatingActionButton } from 'material-ui';
-import * as Actions from '../actions/App';
+import { mylistActions, playActions } from '../actions';
 import VideoItem from '../components/VideoItem';
 import CreateContextMeun from '../utils/ContextMenu';
 
-export default class MyList extends Component {
+class MyList extends Component {
+  static defaultProps = {
+    sortOrder: [
+      { label: '登録が新しい順', code: 1 },
+      { label: '登録が古い順', code: 0 },
+      { label: 'タイトル昇順', code: 4 },
+      { label: 'タイトル降順', code: 5 },
+      { label: 'マイリストコメント昇順', code: 2 },
+      { label: 'マイリストコメント降順', code: 3 },
+      { label: '投稿が新しい順', code: 6 },
+      { label: '投稿が古い順', code: 7 },
+      { label: '再生が多い順', code: 8 },
+      { label: '再生が少ない順', code: 9 },
+      { label: 'コメントが新しい順', code: 10 },
+      { label: 'コメントが古い順', code: 11 },
+      { label: 'コメントが多い順', code: 12 },
+      { label: 'コメントが少ない順', code: 13 },
+      { label: 'マイリスト登録が多い順', code: 14 },
+      { label: 'マイリスト登録が少ない順', code: 15 },
+      { label: '再生時間が長い順', code: 16 },
+      { label: '再生時間が短い順', code: 17 }
+    ]
+  };
+
   contextMeun(video) {
     let menu = new CreateContextMeun(this, [
       'play',
@@ -21,7 +44,7 @@ export default class MyList extends Component {
       'nicofinder'
     ], video);
 
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+    remote.Menu.buildFromTemplate(menu).popup(remote.getCurrentWindow());
   }
 
   introductionCreator() {
@@ -42,7 +65,7 @@ export default class MyList extends Component {
   }
 
   play(video) {
-    this.props.playMusic({
+    this.props.actions.playMusic({
       account: this.props.accounts.niconico.selected,
       video,
       videos: this.props.mylist.selected.myListEntries.items.map(video => video.video)
@@ -50,7 +73,7 @@ export default class MyList extends Component {
   }
 
   sortOrderChange(e) {
-    this.props.getMylistVideos({
+    this.props.actions.getMylistVideos({
       account: this.props.accounts.niconico.selected,
       request: {
         id: this.props.mylist.selected.id,
@@ -134,29 +157,6 @@ export default class MyList extends Component {
   }
 }
 
-MyList.defaultProps = {
-  sortOrder: [
-    { label: '登録が新しい順', code: 1 },
-    { label: '登録が古い順', code: 0 },
-    { label: 'タイトル昇順', code: 4 },
-    { label: 'タイトル降順', code: 5 },
-    { label: 'マイリストコメント昇順', code: 2 },
-    { label: 'マイリストコメント降順', code: 3 },
-    { label: '投稿が新しい順', code: 6 },
-    { label: '投稿が古い順', code: 7 },
-    { label: '再生が多い順', code: 8 },
-    { label: '再生が少ない順', code: 9 },
-    { label: 'コメントが新しい順', code: 10 },
-    { label: 'コメントが古い順', code: 11 },
-    { label: 'コメントが多い順', code: 12 },
-    { label: 'コメントが少ない順', code: 13 },
-    { label: 'マイリスト登録が多い順', code: 14 },
-    { label: 'マイリスト登録が少ない順', code: 15 },
-    { label: '再生時間が長い順', code: 16 },
-    { label: '再生時間が短い順', code: 17 }
-  ]
-};
-
 export default connect(
   state => ({
     play: state.play,
@@ -164,5 +164,7 @@ export default connect(
     accounts: state.accounts,
     queue: state.queue
   }),
-  dispatch => bindActionCreators(Actions, dispatch)
+  dispatch => ({
+    actions: bindActionCreators(Object.assign({}, mylistActions, playActions), dispatch)
+  })
 )(MyList);

@@ -19,7 +19,7 @@
 .play-info {
   position: relative;
   overflow: hidden;
-  flex: 0 0;
+  flex: 0 0 auto;
   background: no-repeat center/cover;
 
   &:before {

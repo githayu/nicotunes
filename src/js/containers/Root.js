@@ -5,21 +5,14 @@ import classNames from 'classnames';
 import { CircularProgress } from 'material-ui';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import BaseTheme from '../utils/BaseTheme';
-import * as Actions from '../actions/App';
-import {
-  Login,
-  MyList,
-  MyLists,
-  Ranking,
-  Search,
-  Settings,
-  PlayContent,
-  Navigation,
-  Player,
-  Queue
-} from './';
+import { accountActions } from '../actions';
+import * as Views from './';
 
-export default class Root extends Component {
+class Root extends Component {
+  static childContextTypes = {
+    muiTheme: PropTypes.object.isRequired
+  };
+
   getChildContext() {
     return {
       muiTheme: getMuiTheme(BaseTheme)
@@ -27,17 +20,18 @@ export default class Root extends Component {
   }
 
   componentWillMount() {
-    this.props.niconicoAccount();
+    this.props.actions.niconicoAccount();
   }
 
   contentRender() {
+
     switch (this.props.app.location) {
-      case 'mylist': return <MyList />;
-      case 'mylists': return <MyLists />;
-      case 'ranking': return <Ranking />;
-      case 'search': return <Search />;
-      case 'settings': return <Settings />;
-      default: return <Login />;
+      case 'mylist': return <Views.MyList />;
+      case 'mylists': return <Views.MyLists />;
+      case 'ranking': return <Views.Ranking />;
+      case 'search': return <Views.Search />;
+      case 'settings': return <Views.Settings />;
+      default: return <Views.Login />;
     }
   }
 
@@ -48,7 +42,7 @@ export default class Root extends Component {
           id="nicotunes"
           className="initialize"
         >
-          <Navigation />
+          <Views.Navigation />
           <div className="loading-progress">
             <CircularProgress />
           </div>
@@ -72,19 +66,19 @@ export default class Root extends Component {
         id="nicotunes"
         className={classNames(signature)}
       >
-        <Navigation />
+        <Views.Navigation />
         <div className="main-wrapper">
           { renderTitleBar }
           <div className="content-container">
             <div className="content">
               { this.contentRender() }
-              <Player />
-              <Queue />
+              <Views.Player />
+              <Views.Queue />
               <div className="loading-progress">
                 <CircularProgress />
               </div>
             </div>
-            { this.props.play.active ? <PlayContent /> : [] }
+            { this.props.play.active ? <Views.PlayContent /> : [] }
           </div>
         </div>
       </div>
@@ -92,14 +86,12 @@ export default class Root extends Component {
   }
 }
 
-Root.childContextTypes = {
-  muiTheme: PropTypes.object.isRequired
-};
-
 export default connect(
   state => ({
     app: state.app,
     play: state.play
   }),
-  dispatch => bindActionCreators(Actions, dispatch)
+  dispatch => ({
+    actions: bindActionCreators(accountActions, dispatch)
+  })
 )(Root);

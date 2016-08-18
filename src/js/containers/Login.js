@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { RaisedButton } from 'material-ui';
-import * as Actions from '../actions/App';
+import { accountActions } from '../actions';
 
-export default class Login extends Component {
+class Login extends Component {
   login(e) {
     e.preventDefault();
 
-    this.props.niconicoLogin({
+    this.props.actions.niconicoLogin({
       mail_tel: this.refs.mail_tel.value.trim(),
       password: this.refs.password.value.trim()
     });
@@ -53,5 +53,7 @@ export default connect(
   state => ({
     app: state.app
   }),
-  dispatch => bindActionCreators(Actions, dispatch)
+  dispatch => ({
+    actions: bindActionCreators(accountActions, dispatch)
+  })
 )(Login);

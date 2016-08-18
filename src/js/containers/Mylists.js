@@ -1,14 +1,14 @@
-import Remote, { Menu } from 'remote';
+import { remote } from 'electron';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as Actions from '../actions/App';
+import { mylistActions, appActions } from '../actions';
 import CreateContextMeun from '../utils/ContextMenu';
 
-export default class MyLists extends Component {
+class MyLists extends Component {
   componentDidMount() {
     if (this.props.accounts.niconico.selected.id != this.props.mylist.userId) {
-      this.props.mylistsLookup(this.props.accounts.niconico.selected);
+      this.props.actions.mylistsLookup(this.props.accounts.niconico.selected);
     }
   }
 
@@ -16,11 +16,11 @@ export default class MyLists extends Component {
     let menu = new CreateContextMeun(this, [
       {
         label: 'マイリスト更新',
-        click: this.props.mylistsLookup.bind(this, this.props.accounts.niconico.selected, true)
+        click: this.props.actions.mylistsLookup.bind(this, this.props.accounts.niconico.selected, true)
       }
     ]);
 
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+    remote.Menu.buildFromTemplate(menu).popup(remote.getCurrentWindow());
   }
 
   mylistLink(id) {
@@ -31,12 +31,12 @@ export default class MyLists extends Component {
     })();
 
     if (!mylist.fetchAll) {
-      this.props.getMylistVideos({
+      this.props.actions.getMylistVideos({
         account: this.props.accounts.niconico.selected,
         request: { id }
       });
     } else {
-      this.props.Router('mylist', { mylist });
+      this.props.actions.Router('mylist', { mylist });
     }
   }
 
@@ -94,5 +94,7 @@ export default connect(
     mylist: state.mylist,
     accounts: state.accounts
   }),
-  dispatch => bindActionCreators(Actions, dispatch)
+  dispatch => ({
+    actions: bindActionCreators(Object.assign({}, mylistActions, appActions), dispatch)
+  })
 )(MyLists);

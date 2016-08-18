@@ -1,18 +1,33 @@
-import Remote, { Menu } from 'remote';
+import { remote } from 'electron';
 import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { IconButton } from 'material-ui';
 import classNames from 'classnames';
 import { ipcRenderer } from 'electron';
-import * as Actions from '../actions/App';
+import { appActions } from '../actions';
 import Utils from '../utils/Utils';
 import LocalStorageController from '../utils/LocalStorageController';
 import CreateContextMeun from '../utils/ContextMenu';
 
-export default class Player extends Component {
+class Player extends Component {
+  static defaultProps = {
+    repeat: [
+      'no-repeat',
+      'repeat',
+      'one-repeat'
+    ],
+    rate: [ 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4 ],
+    appLocalStorage: new LocalStorageController('app')
+  };
+
+  static contextTypes = {
+    muiTheme: PropTypes.object.isRequired
+  };
+
   constructor() {
     super();
+
     this.state = {
       repeat: 0,
       queueLoop: false,
@@ -29,12 +44,12 @@ export default class Player extends Component {
 
     this.props.play.audio.addEventListener('timeupdate', ::this.timeUpdate, false);
 
-    this.props.play.audio.addEventListener('play', this.props.stateChanger.bind(this, 'play', {
+    this.props.play.audio.addEventListener('play', this.props.actions.stateChanger.bind(this, 'play', {
       ended: false,
       paused: false
     }), false);
 
-    this.props.play.audio.addEventListener('pause', this.props.stateChanger.bind(this, 'play', {
+    this.props.play.audio.addEventListener('pause', this.props.actions.stateChanger.bind(this, 'play', {
       paused: true
     }), false);
 
@@ -74,7 +89,7 @@ export default class Player extends Component {
       }
     ]);
 
-    Menu.buildFromTemplate(menu).popup(Remote.getCurrentWindow());
+    remote.Menu.buildFromTemplate(menu).popup(remote.getCurrentWindow());
   }
 
   handleEvent(e) {
@@ -98,7 +113,7 @@ export default class Player extends Component {
 
     // キューリピート無効の場合は終了
     if (this.state.repeat == 0 && index >= this.props.queue.items.length) {
-      return this.props.stateChanger('play', {
+      return this.props.actions.stateChanger('play', {
         active: false,
         video: null
       });
@@ -276,7 +291,7 @@ export default class Player extends Component {
                 </div>
               </div>
               <IconButton
-                onClick={this.props.stateChanger.bind(this, 'queue', {
+                onClick={this.props.actions.stateChanger.bind(this, 'queue', {
                   active: !this.props.queue.active
                 })}
                 className="queue-button"
@@ -313,20 +328,6 @@ export default class Player extends Component {
   }
 }
 
-Player.contextTypes = {
-  muiTheme: PropTypes.object.isRequired
-};
-
-Player.defaultProps = {
-  repeat: [
-    'no-repeat',
-    'repeat',
-    'one-repeat'
-  ],
-  rate: [ 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4 ],
-  appLocalStorage: new LocalStorageController('app')
-};
-
 export default connect(
   state => ({
     app: state.app,
@@ -334,5 +335,7 @@ export default connect(
     queue: state.queue,
     accounts: state.accounts
   }),
-  dispatch => bindActionCreators(Actions, dispatch)
+  dispatch => ({
+    actions: bindActionCreators(appActions, dispatch)
+  })
 )(Player);

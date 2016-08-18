@@ -19,14 +19,17 @@ export default class Utils {
     return n < 10 ? '0'+ n : n;
   }
 
-  static UrlParamDecoder(url) {
-    var result = {},
-        query = (url.startsWith('?') ? url.substring(1) : url).split('&');
+  static isDecimalNumber(string) {
+    return /^(?!0)\d+$/.test(string);
+  }
 
-    for (var i = 0; query[i]; i++) {
-      var p = query[i].split('=');
-      result[p[0]] = p[1];
-    }
+  static URLParamDecoder(url) {
+    var result = {};
+
+    (url.startsWith('?') ? url.substring(1) : url).split('&').forEach(query => {
+      var [key, value] = query.split('=');
+      result[key] = this.isDecimalNumber(value) ? Number(value) : decodeURIComponent(value);
+    });
 
     return result;
   }

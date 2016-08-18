@@ -5,10 +5,52 @@ import { connect } from 'react-redux';
 import { Tabs, Tab } from 'material-ui';
 import classNames from 'classnames';
 import Utils from '../utils/Utils';
-import * as Actions from '../actions/App';
+import { appActions } from '../actions';
 import LocalStorageController from '../utils/LocalStorageController';
 
-export default class PlayContent extends Component {
+class PlayContent extends Component {
+  static defaultProps = {
+    slides: [
+      {
+        value: 'details',
+        label: '詳細'
+      }, {
+        value: 'lyrics',
+        label: '歌詞'
+      }
+    ],
+
+    detailTable: [
+      {
+        value: 'vocalist',
+        label: 'ボーカリスト'
+      }, {
+        value: 'producer',
+        label: 'プロデューサー'
+      }, {
+        value: 'animator',
+        label: '動画製作者'
+      }, {
+        value: 'label',
+        label: 'レーベル'
+      }, {
+        value: 'circle',
+        label: 'サークル'
+      }, {
+        value: 'other',
+        label: 'その他'
+      }, {
+        value: 'band',
+        label: 'バンド'
+      }, {
+        value: 'nothing',
+        label: 'その他'
+      }
+    ],
+
+    appLocalStorage: new LocalStorageController('app')
+  };
+
   constructor(props) {
     super(props);
     ipcRenderer.send('mainWindowResize', 'playing');
@@ -42,7 +84,7 @@ export default class PlayContent extends Component {
 
     if (!this.props.play.vocaDB) {
       renderTitle = this.props.play.video.title;
-      renderArtistName = Utils.UrlParamDecoder(decodeURIComponent(this.props.play.audioUrl)).artist;
+      renderArtistName = Utils.URLParamDecoder(decodeURIComponent(this.props.play.audioUrl)).artist;
     } else {
       renderTitle = this.props.play.vocaDB.defaultName;
       renderArtistName = this.props.play.vocaDB.artistString;
@@ -81,7 +123,7 @@ export default class PlayContent extends Component {
   }
 
   slideChanger(value) {
-    this.props.stateChanger('play', { selectedTab: value });
+    this.props.actions.tateChanger('play', { selectedTab: value });
   }
 
   videoInfoRender() {
@@ -282,48 +324,6 @@ export default class PlayContent extends Component {
   }
 }
 
-PlayContent.defaultProps = {
-  slides: [
-    {
-      value: 'details',
-      label: '詳細'
-    }, {
-      value: 'lyrics',
-      label: '歌詞'
-    }
-  ],
-
-  detailTable: [
-    {
-      value: 'vocalist',
-      label: 'ボーカリスト'
-    }, {
-      value: 'producer',
-      label: 'プロデューサー'
-    }, {
-      value: 'animator',
-      label: '動画製作者'
-    }, {
-      value: 'label',
-      label: 'レーベル'
-    }, {
-      value: 'circle',
-      label: 'サークル'
-    }, {
-      value: 'other',
-      label: 'その他'
-    }, {
-      value: 'band',
-      label: 'バンド'
-    }, {
-      value: 'nothing',
-      label: 'その他'
-    }
-  ],
-
-  appLocalStorage: new LocalStorageController('app')
-};
-
 export default connect(
   state => ({
     app: state.app,
@@ -331,5 +331,7 @@ export default connect(
     queue: state.queue,
     accounts: state.accounts
   }),
-  dispatch => bindActionCreators(Actions, dispatch)
+  dispatch => ({
+    actions: bindActionCreators(appActions, dispatch)
+  })
 )(PlayContent);
